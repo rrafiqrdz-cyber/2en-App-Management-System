@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2EN APPS MANAGEMENT — Leave Application</title>
+<style>
+/* ============================================================
+   THEME — derived from the 2EN logo (navy blue + white)
+   main colour : NAVY       (#182C4D) + logo blue accent (#124F87)
+   secondary   : WHITE      (#FFFFFF)
+   approve btn : GREEN      (#28A96C)
+   reject btn  : RED        (#E14B4B)
+   pending tag : YELLOW     (#F5B82E)
+   ============================================================ */
+:root{
+  --primary:#182C4D; --primary-dark:#0E1B30; --primary-soft:#E9EEF5;
+  --accent:#124F87; --accent-soft:#E6EFF8;
+  --white:#fff; --bg:#F4F6FA; --ink:#152238; --muted:#6B7A93; --line:#DEE5EF;
+  --green:#28A96C; --green-soft:#E6F7EE;
+  --red:#E14B4B; --red-soft:#FDECEC;
+  --yellow:#F5B82E; --yellow-soft:#FFF6DC;
+  --shadow:0 2px 14px rgba(24,44,77,.10); --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+.no-scroll{overflow:hidden}
+.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic.sm{width:15px;height:15px}
+.app{display:flex;min-height:100vh}
+
+/* ---------- Sidebar ---------- */
+.sidebar{width:248px;background:var(--primary);color:#fff;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;z-index:40;transition:transform .25s}
+.brand{height:68px;display:flex;align-items:center;gap:10px;padding:0 20px;border-bottom:1px solid rgba(255,255,255,.15);flex:none}
+.brand-logo{width:40px;height:40px;border-radius:9px;background:#fff;padding:3px;object-fit:contain;flex:none;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.brand-txt strong{display:block;font-size:14px;letter-spacing:.3px;font-weight:850;line-height:1.15}
+.brand-txt small{display:block;font-size:10.5px;opacity:.72}
+.nav{padding:14px 10px;overflow:auto;flex:1}
+.nav-label{font-size:10px;letter-spacing:1.4px;opacity:.6;padding:14px 12px 6px;font-weight:700}
+.nav-item{width:100%;border:0;background:transparent;color:rgba(255,255,255,.86);display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;cursor:pointer;font:inherit;font-size:13.5px;text-align:left;transition:.15s}
+.nav-item:hover{background:rgba(255,255,255,.12);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.18);color:#fff;font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.nav-badge{margin-left:auto;background:var(--yellow);color:#4a3600;border-radius:20px;padding:1px 7px;font-size:11px;font-weight:800}
+
+/* ---------- Main / topbar ---------- */
+.main{flex:1;margin-left:248px;min-width:0}
+.topbar{height:68px;background:var(--white);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 26px;position:sticky;top:0;z-index:20}
+.topbar h2{font-size:16px;font-weight:700}
+.topbar .spacer{flex:1}
+.icon-btn{border:1px solid var(--line);background:#fff;width:36px;height:36px;border-radius:9px;display:grid;place-items:center;cursor:pointer;color:var(--ink);position:relative}
+.icon-btn:hover{border-color:var(--primary);color:var(--primary)}
+.icon-btn .red-dot{position:absolute;top:6px;right:7px;width:7px;height:7px;background:var(--accent);border-radius:50%;border:2px solid #fff}
+.role-box{display:flex;align-items:center;gap:8px;background:var(--primary-soft);padding:5px 10px;border-radius:9px;color:var(--primary-dark)}
+.role-box label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+select,input,textarea{font:inherit;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 11px;outline:none;width:100%}
+select:focus,input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(24,44,77,.14)}
+textarea{resize:vertical;min-height:88px}
+.role-box select{width:auto;background:transparent;border:0;padding:2px 4px;font-weight:700;color:var(--primary-dark);box-shadow:none!important}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px}
+.menu-btn{display:none}
+.content{padding:26px;max-width:1520px;margin:0 auto}
+.screen{display:none;animation:fade .2s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ---------- Common ---------- */
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.page-head h1{font-size:23px;font-weight:800;letter-spacing:-.4px}
+.page-head p{color:var(--muted);font-size:13px;margin-top:3px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.card-head h3{font-size:14px;font-weight:750}
+.card-head a,.link{color:var(--primary);font-size:12px;font-weight:700;cursor:pointer;text-decoration:none}
+.link:hover{text-decoration:underline}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.mt16{margin-top:16px}
+.muted{color:var(--muted)}
+.tiny{font-size:11.5px}
+.b{font-weight:700}
+
+.btn{border:1px solid transparent;border-radius:9px;padding:9px 15px;font:inherit;font-weight:650;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s;font-size:13px;white-space:nowrap}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.primary:hover{background:var(--primary-dark)}
+.btn.ghost{background:#fff;border-color:var(--line);color:var(--ink)}
+.btn.ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn.approve{background:var(--green);color:#fff}
+.btn.approve:hover{filter:brightness(.93)}
+.btn.reject{background:var(--red);color:#fff}
+.btn.reject:hover{filter:brightness(.93)}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:7px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:3px 9px;font-size:11.5px;font-weight:750;background:var(--primary-soft);color:var(--primary-dark)}
+.pill.soft-accent{background:var(--accent-soft);color:#0E4D8A}
+
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:750;white-space:nowrap;border:1px solid transparent}
+.tag.pending{background:var(--yellow-soft);color:#8a6100;border-color:#f4dc9c}
+.tag.approved{background:var(--green-soft);color:#127046;border-color:#c6ebd7}
+.tag.rejected{background:var(--red-soft);color:#a32d2d;border-color:#f5caca}
+.tag.draft,.tag.cancelled{background:#EEF2F4;color:#60757e;border-color:#dde6e9}
+.tag.completed{background:var(--primary-soft);color:var(--primary-dark);border-color:#D3DDEB}
+.tag.statutory{background:var(--primary-soft);color:var(--primary-dark)}
+.tag.policy{background:#f1effb;color:#5b4ca8}
+.tag.yes{background:var(--green-soft);color:#127046}
+.tag.no{background:#EEF2F4;color:#60757e}
+
+/* ---------- Dashboard ---------- */
+.balance-card .code{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--primary)}
+.balance-card .name{font-size:12.5px;color:var(--muted);margin:2px 0 10px}
+.balance-card .num{font-size:30px;font-weight:800;line-height:1;letter-spacing:-1px}
+.balance-card .num small{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0}
+.balance-card .meta{font-size:11px;color:var(--muted);margin-top:8px}
+.bar{height:5px;border-radius:5px;background:#ECF1F3;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--primary);border-radius:5px}
+.stat{display:flex;align-items:center;gap:12px}
+.stat .ico{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary)}
+.stat .ico.y{background:var(--yellow-soft);color:#a67800}
+.stat .ico.g{background:var(--green-soft);color:var(--green)}
+.stat .ico.c{background:var(--accent-soft);color:#0E4D8A}
+.stat b{font-size:20px;display:block;line-height:1.1}
+.stat span{font-size:11.5px;color:var(--muted)}
+.mini-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.mini-row:last-child{border-bottom:0}
+.mini-row .grow{flex:1;min-width:0}
+.mini-row .grow b{font-size:12.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-row .grow span{font-size:11px;color:var(--muted)}
+.notice{display:flex;gap:10px;padding:11px 12px;border-radius:9px;background:var(--primary-soft);color:var(--primary-dark);font-size:12px;line-height:1.5}
+.notice.warn{background:var(--yellow-soft);color:#8a6100}
+.notice.err{background:var(--red-soft);color:#a32d2d}
+.notice.info{background:var(--primary-soft);color:var(--primary-dark)}
+
+/* ---------- Forms / apply ---------- */
+.apply-layout{grid-template-columns:minmax(0,1.55fr) minmax(300px,.9fr);align-items:start}
+.field{margin-bottom:14px}
+.field>label,.lbl{display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:#34505c}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hint{font-size:11px;color:var(--muted);margin-top:5px}
+.type-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:18px}
+.type-card{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:11px 10px;text-align:left;cursor:pointer;transition:.15s;min-height:86px;display:flex;flex-direction:column}
+.type-card:hover{border-color:var(--primary)}
+.type-card.on{border-color:var(--primary);background:var(--primary-soft);box-shadow:0 0 0 3px rgba(24,44,77,.12)}
+.type-card .tc{font-size:10.5px;font-weight:800;letter-spacing:1px;color:var(--primary)}
+.type-card .tn{font-size:12px;font-weight:700;margin:3px 0 auto}
+.type-card .tb{font-size:11px;color:var(--muted)}
+.sub-legend{margin:-8px 0 16px;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.sub-legend b{color:var(--ink)}
+.session{display:flex;gap:0}
+.session button{flex:1;border:1px solid var(--line);background:#fff;padding:9px 4px;font:inherit;font-size:12px;cursor:pointer}
+.session button:first-child{border-radius:8px 0 0 8px}
+.session button:last-child{border-radius:0 8px 8px 0}
+.session button+button{border-left:0}
+.session button.on{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:700}
+.file-drop{border:1.5px dashed var(--line);border-radius:9px;padding:12px;text-align:center;cursor:pointer;font-size:12px;color:var(--muted);background:#fbfdfd}
+.file-drop:hover{border-color:var(--primary);color:var(--primary)}
+.file-drop b{color:var(--primary)}
+.summary-big{text-align:center;padding:8px 0 14px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.summary-big span{font-size:42px;font-weight:850;line-height:1;color:var(--primary);letter-spacing:-2px}
+.summary-big small{display:block;font-size:11.5px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.8px}
+.sum-line{display:flex;justify-content:space-between;font-size:12px;padding:5px 0}
+.breakdown{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0}
+.chip{font-size:10.5px;padding:3px 7px;border-radius:6px;background:var(--primary-soft);color:var(--primary-dark);font-weight:650}
+.chip.ph{background:var(--yellow-soft);color:#8a6100}
+.chip.we{background:#EEF2F4;color:#60757e}
+.policy-list{list-style:none;font-size:12px}
+.policy-list li{display:flex;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.policy-list li:last-child{border-bottom:0}
+.policy-list .ok{color:var(--green)}
+.policy-list .bad{color:var(--red)}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line);padding-top:16px;margin-top:6px}
+.errbox{margin:6px 0 12px}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tab{border:0;background:transparent;padding:9px 14px;font-size:12.5px;font-weight:750;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:7px}
+.tab:hover{color:var(--primary)}
+.tab.on{color:var(--primary);border-bottom-color:var(--primary)}
+.tab-count{background:#EEF2F4;color:#60757e;border-radius:20px;padding:1px 7px;font-size:10.5px;font-weight:800}
+.tab.on .tab-count{background:var(--primary-soft);color:var(--primary-dark)}
+
+/* ---------- Tables ---------- */
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:800;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:#fbfdfd}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:hover{background:#f9fcfd}
+tbody tr:last-child td{border-bottom:0}
+.emp{display:flex;align-items:center;gap:9px}
+.emp .av{width:28px;height:28px;border-radius:50%;background:var(--primary-soft);color:var(--primary-dark);display:grid;place-items:center;font-size:10px;font-weight:800;flex:none}
+.emp b{font-size:12.5px;display:block}
+.emp span{font-size:10.5px;color:var(--muted)}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.toolbar select,.toolbar input{width:auto;min-width:140px}
+.toolbar .spacer{flex:1}
+.empty{text-align:center;color:var(--muted);padding:34px 10px;font-size:13px}
+.empty .ic{width:30px;height:30px;opacity:.4;margin-bottom:8px}
+
+/* ---------- Inbox ---------- */
+.inbox-card{border-left:4px solid var(--yellow)}
+.inbox-card.done{border-left-color:var(--green)}
+.inbox-top{display:flex;gap:12px;align-items:flex-start}
+.inbox-top .grow{flex:1}
+.inbox-meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:11.5px;color:var(--muted)}
+.inbox-meta b{color:var(--ink)}
+.inbox-actions{display:flex;gap:8px;margin-top:14px;border-top:1px solid var(--line);padding-top:13px;flex-wrap:wrap}
+.inbox-actions .spacer{flex:1}
+.context{background:var(--primary-soft);border-radius:8px;padding:9px 11px;font-size:11.5px;color:var(--primary-dark);margin-top:10px;display:flex;gap:8px}
+
+/* ---------- Calendar ---------- */
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);border-radius:8px;overflow:hidden;margin-bottom:1px}
+.cal-head div{background:#fbfdfd;padding:9px;text-align:center;font-size:11px;font-weight:800;color:var(--muted)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);border-radius:9px;overflow:hidden}
+.cal-cell{background:#fff;min-height:104px;padding:7px;font-size:11px}
+.cal-cell.out{background:#f7fafb;color:#b6c5cb}
+.cal-cell.we{background:#fbfcfc}
+.cal-cell .dnum{font-weight:800;font-size:12px;margin-bottom:5px;display:flex;justify-content:space-between}
+.cal-cell .ph{background:var(--yellow-soft);color:#8a6100;border-radius:5px;padding:2px 5px;font-size:9.5px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-ev{border-radius:5px;padding:3px 5px;font-size:9.5px;font-weight:700;margin-bottom:3px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-ev.ap{background:var(--green-soft);color:#127046;border-left:3px solid var(--green)}
+.cal-ev.pe{background:var(--yellow-soft);color:#8a6100;border-left:3px solid var(--yellow)}
+.cal-ev.rj{background:var(--red-soft);color:#a32d2d;border-left:3px solid var(--red)}
+.legend-row{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:12px}
+.legend-row i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
+
+/* ---------- Workflow ---------- */
+.seq{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.step{border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;min-width:170px;background:#fff;position:relative}
+.step .sn{font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.8px}
+.step b{display:block;font-size:13px;margin:2px 0}
+.step .sr{font-size:11px;color:var(--muted)}
+.step .x{position:absolute;top:7px;right:8px;border:0;background:none;color:var(--muted);cursor:pointer}
+.arrow{color:var(--primary);font-weight:800}
+.scope-row{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+.switch{position:relative;width:38px;height:21px;flex:none}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch i{position:absolute;inset:0;background:#cfdade;border-radius:20px;cursor:pointer;transition:.2s}
+.switch i::before{content:"";position:absolute;width:15px;height:15px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked+i{background:var(--primary)}
+.switch input:checked+i::before{transform:translateX(17px)}
+
+/* ---------- Reports ---------- */
+.kpi b{font-size:24px;font-weight:800;display:block;line-height:1.1}
+.kpi span{font-size:11.5px;color:var(--muted)}
+.chart{display:flex;align-items:flex-end;gap:16px;height:170px;padding:10px 4px 0;border-bottom:1px solid var(--line)}
+.chart .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px}
+.chart .bar-v{width:60%;max-width:52px;background:var(--primary);border-radius:6px 6px 0 0;min-height:3px;transition:.3s}
+.chart .bar-v.alt{background:var(--accent)}
+.chart .lb{font-size:10.5px;color:var(--muted);font-weight:700}
+.chart .vl{font-size:11px;font-weight:800;color:var(--primary)}
+
+/* ---------- Modal / toast ---------- */
+.backdrop{position:fixed;inset:0;background:rgba(12,40,52,.45);z-index:80;animation:fade .15s}
+.modal{position:fixed;z-index:81;left:50%;top:50%;transform:translate(-50%,-50%);width:min(620px,calc(100vw - 30px));max-height:88vh;overflow:auto;background:#fff;border-radius:14px;box-shadow:0 24px 60px rgba(10,45,60,.28);animation:pop .18s}
+.modal.wide{width:min(780px,calc(100vw - 30px))}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-48%) scale(.98)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:17px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}
+.modal-head h3{font-size:16px}
+.modal-body{padding:20px}
+.modal-foot{display:flex;gap:9px;justify-content:flex-end;padding:15px 20px;border-top:1px solid var(--line);position:sticky;bottom:0;background:#fff}
+.timeline{list-style:none;margin:10px 0}
+.timeline li{position:relative;padding:0 0 16px 26px;border-left:2px solid var(--line);margin-left:7px}
+.timeline li:last-child{border-left-color:transparent;padding-bottom:0}
+.timeline li::before{content:"";position:absolute;left:-7px;top:1px;width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid var(--muted)}
+.timeline li.ok::before{border-color:var(--green);background:var(--green)}
+.timeline li.pend::before{border-color:var(--yellow);background:var(--yellow)}
+.timeline li.bad::before{border-color:var(--red);background:var(--red)}
+.timeline b{font-size:12.5px;display:block}
+.timeline span{font-size:11px;color:var(--muted)}
+.timeline p{font-size:11.5px;color:#34505c;margin-top:3px;background:var(--bg);padding:6px 8px;border-radius:6px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;font-size:12.5px;margin-bottom:14px}
+.detail-grid div span{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.detail-grid div b{font-size:13px}
+#toastRoot{position:fixed;right:20px;bottom:20px;z-index:120;display:flex;flex-direction:column;gap:9px}
+.toast{background:#17333F;color:#fff;border-radius:10px;padding:12px 15px;font-size:12.5px;box-shadow:0 10px 30px rgba(0,0,0,.2);display:flex;gap:9px;align-items:center;min-width:250px;animation:fade .2s}
+.toast.ok{background:var(--green)}
+.toast.bad{background:var(--red)}
+.toast.warn{background:#a67800}
+.notif-pop{position:fixed;right:26px;top:62px;width:330px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px rgba(10,45,60,.16);z-index:60;padding:8px}
+.notif-pop .np-head{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--line);font-size:12px;font-weight:800}
+.notif-pop .np-item{padding:10px;font-size:12px;border-bottom:1px dashed var(--line);display:flex;gap:9px}
+.notif-pop .np-item:last-child{border-bottom:0}
+.notif-pop .np-item i{width:7px;height:7px;background:var(--accent);border-radius:50%;margin-top:5px;flex:none}
+.notif-pop .np-item span{color:var(--muted);font-size:10.5px;display:block}
+
+@media(max-width:1200px){.g4{grid-template-columns:repeat(2,1fr)}.type-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:980px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:none}
+  .main{margin-left:0}.menu-btn{display:grid}
+  .g3,.g2,.apply-layout{grid-template-columns:1fr}
+  .content{padding:18px}
+}
+@media(max-width:620px){
+  .g4{grid-template-columns:1fr}.topbar{padding:0 14px}.role-box label{display:none}
+  .field-row,.detail-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<!-- ========== Icon sprite ========== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 13h4l2 3h4l2-3h4"/></symbol>
+<symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></symbol>
+<symbol id="i-flow" viewBox="0 0 24 24"><rect x="2" y="3" width="7" height="6" rx="1.5"/><rect x="15" y="15" width="7" height="6" rx="1.5"/><path d="M9 6h4a3 3 0 0 1 3 3v6"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+<symbol id="i-ledger" viewBox="0 0 24 24"><path d="M6 3h12v18H6zM9 7h6M9 11h6M9 15h4"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 20h16"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3zM12 9v5M12 17h.01"/></symbol>
+<symbol id="i-cl" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-cr" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+<symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 7h4l10 10h4M17 3l4 4-4 4M3 17h4l3-3M17 13l4 4-4 4"/></symbol>
+</defs></svg>
+
+<div class="app">
+  <!-- ========== Sidebar ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img class="brand-logo" alt="2EN Apps Management logo" src="data:image/png;base64,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">
+      <div class="brand-txt"><strong>2EN APPS MANAGEMENT</strong><small>HR System · Malaysia</small></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">WORKSPACE</div>
+      <button class="nav-item active" data-action="goto" data-screen="dashboard" data-roles="employee,manager,hr,auditor"><svg class="ic"><use href="#i-grid"/></svg>Dashboard</button>
+      <button class="nav-item" data-action="goto" data-screen="apply" data-roles="employee,manager,hr"><svg class="ic"><use href="#i-plus"/></svg>Apply Leave</button>
+      <button class="nav-item" data-action="goto" data-screen="requests" data-roles="employee,manager,hr,auditor"><svg class="ic"><use href="#i-list"/></svg>My Requests</button>
+      <button class="nav-item" data-action="goto" data-screen="calendar" data-roles="employee,manager,hr,auditor"><svg class="ic"><use href="#i-cal"/></svg>Team Calendar</button>
+      <div class="nav-label">APPROVALS</div>
+      <button class="nav-item" data-action="goto" data-screen="inbox" data-roles="manager,hr"><svg class="ic"><use href="#i-inbox"/></svg>Approval Inbox <span class="nav-badge" id="navInboxCount">2</span></button>
+      <div class="nav-label" data-roles="hr">HR ADMIN</div>
+      <button class="nav-item" data-action="goto" data-screen="leavetypes" data-roles="hr"><svg class="ic"><use href="#i-sliders"/></svg>Leave Types &amp; Policy</button>
+      <button class="nav-item" data-action="goto" data-screen="workflow" data-roles="hr"><svg class="ic"><use href="#i-flow"/></svg>Approval Workflow</button>
+      <button class="nav-item" data-action="goto" data-screen="holidays" data-roles="hr"><svg class="ic"><use href="#i-globe"/></svg>Holiday Calendar</button>
+      <button class="nav-item" data-action="goto" data-screen="ledger" data-roles="hr"><svg class="ic"><use href="#i-ledger"/></svg>Balance Ledger</button>
+      <button class="nav-item" data-action="goto" data-screen="reports" data-roles="hr"><svg class="ic"><use href="#i-chart"/></svg>Reports</button>
+      <div class="nav-label" data-roles="hr,auditor">COMPLIANCE</div>
+      <button class="nav-item" data-action="goto" data-screen="audit" data-roles="hr,auditor"><svg class="ic"><use href="#i-ledger"/></svg>Audit Trail <span class="tag no" style="margin-left:auto;font-size:9px">READ ONLY</span></button>
+    </nav>
+  </aside>
+
+  <!-- ========== Main ========== -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" data-action="toggle-menu" aria-label="Menu"><svg class="ic"><use href="#i-menu"/></svg></button>
+      <h2 id="topTitle">Dashboard</h2>
+      <div class="spacer"></div>
+      <button class="icon-btn" data-action="notif" aria-label="Notifications"><svg class="ic"><use href="#i-bell"/></svg><i class="red-dot"></i></button>
+      <div class="role-box">
+        <label>View as</label>
+        <select id="roleSelect" data-action="role-change">
+          <option value="employee">Employee</option>
+          <option value="manager">Manager</option>
+          <option value="hr">HR Admin</option>
+          <option value="auditor">Auditor / DPO</option>
+        </select>
+      </div>
+      <div class="avatar" id="avatar">AN</div>
+    </header>
+
+    <main class="content">
+      <!-- ---------- Dashboard ---------- -->
+      <section class="screen active" id="scr-dashboard">
+        <div class="page-head">
+          <div><h1 id="dashTitle">Good morning, Aina 👋</h1><p id="dashSub">Here is your leave overview for 2026.</p></div>
+          <button class="btn primary" data-action="goto" data-screen="apply" data-roles="employee,manager,hr"><svg class="ic sm"><use href="#i-plus"/></svg>Apply Leave</button>
+        </div>
+        <div class="grid g4" id="balanceCards"></div>
+        <div class="grid g3 mt16" id="dashStats"></div>
+        <div class="grid g2 mt16">
+          <div class="card">
+            <div class="card-head"><h3>Recent requests</h3><span class="link" data-action="goto" data-screen="requests">View all →</span></div>
+            <div id="dashRecent"></div>
+          </div>
+          <div id="dashSide"></div>
+        </div>
+      </section>
+
+      <!-- ---------- Apply Leave ---------- -->
+      <section class="screen" id="scr-apply">
+        <div class="page-head">
+          <div><h1>Apply Leave</h1><p>UC-01 · Policy checks run live as you fill the form.</p></div>
+          <span class="pill soft-accent"><svg class="ic sm"><use href="#i-info"/></svg> Act 265 compliant</span>
+        </div>
+        <div class="grid apply-layout">
+          <div class="card">
+            <div class="card-head"><h3>1 · Leave details</h3><span class="tiny muted">* Required</span></div>
+            <div class="lbl" style="margin-bottom:8px">Leave type *</div>
+            <div class="type-grid" id="typeGrid"></div>
+            <div class="sub-legend"><svg class="ic sm"><use href="#i-info"/></svg><span>Some leave types require a <b>substitute</b> to be assigned before manager and admin approval.</span></div>
+            <div class="field-row">
+              <div class="field">
+                <label>Start date *</label>
+                <input type="date" id="applyStart">
+                <div class="lbl" style="margin:9px 0 5px">Start session</div>
+                <div class="session" id="sessStart">
+                  <button type="button" data-action="sess" data-which="start" data-value="FULL" class="on">Full day</button>
+                  <button type="button" data-action="sess" data-which="start" data-value="AM">Morning</button>
+                  <button type="button" data-action="sess" data-which="start" data-value="PM">Afternoon</button>
+                </div>
+              </div>
+              <div class="field">
+                <label>End date *</label>
+                <input type="date" id="applyEnd">
+                <div class="lbl" style="margin:9px 0 5px">End session</div>
+                <div class="session" id="sessEnd">
+                  <button type="button" data-action="sess" data-which="end" data-value="FULL" class="on">Full day</button>
+                  <button type="button" data-action="sess" data-which="end" data-value="AM">Morning</button>
+                  <button type="button" data-action="sess" data-which="end" data-value="PM">Afternoon</button>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label>Reason *</label>
+              <textarea id="applyReason" maxlength="500" placeholder="Briefly describe the purpose of your leave…"></textarea>
+              <div class="hint"><span id="charCount">0</span>/500 characters</div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label id="handoverLabel">Handover colleague</label>
+                <select id="applyHandover"><option value="">— Select (optional) —</option></select>
+                <div class="hint" id="handoverHint"></div>
+              </div>
+              <div class="field">
+                <label>Supporting document</label>
+                <div class="file-drop" data-action="pick-file">
+                  <input type="file" id="applyFile" style="display:none">
+                  <svg class="ic"><use href="#i-up"/></svg>
+                  <div id="fileLabel">Click to upload <b>MC / supporting file</b></div>
+                </div>
+                <div class="hint" id="fileHint">Required for Medical Leave (MC) above 3 days.</div>
+              </div>
+            </div>
+            <div id="applyErrors"></div>
+            <div class="form-actions">
+              <button class="btn ghost" data-action="save-draft">Save as draft</button>
+              <button class="btn primary" data-action="submit-leave"><svg class="ic sm"><use href="#i-check"/></svg>Submit application</button>
+            </div>
+          </div>
+          <div>
+            <div class="card" id="applySummary"></div>
+            <div class="card mt16" id="policyCard"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- My Requests ---------- -->
+      <section class="screen" id="scr-requests">
+        <div class="page-head">
+          <div><h1>My Requests</h1><p>UC-02 · New and past requests with full approval history.</p></div>
+          <button class="btn primary" data-action="goto" data-screen="apply" data-roles="employee,manager,hr"><svg class="ic sm"><use href="#i-plus"/></svg>New request</button>
+        </div>
+        <div class="tabs" id="reqTabs">
+          <button class="tab on" data-action="req-tab" data-tab="new">New requests <span class="tab-count" id="newReqCount">0</span></button>
+          <button class="tab" data-action="req-tab" data-tab="past">Past requests <span class="tab-count" id="pastReqCount">0</span></button>
+        </div>
+        <div class="card">
+          <div class="toolbar">
+            <select id="reqFilter" data-action="req-filter">
+              <option value="all">All statuses</option><option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option><option value="REJECTED">Rejected</option>
+              <option value="CANCELLED">Cancelled</option><option value="DRAFT">Draft</option>
+            </select>
+            <input id="reqSearch" type="search" placeholder="Search ID / type…" data-action="req-search">
+            <div class="spacer"></div>
+            <span class="tiny muted" id="reqCount"></span>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Reference</th><th>Leave type</th><th>Period</th><th>Days</th><th>Submitted</th><th>Status</th><th></th></tr></thead>
+            <tbody id="requestsBody"></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ---------- Approval Inbox ---------- -->
+      <section class="screen" id="scr-inbox">
+        <div class="page-head">
+          <div><h1>Approval Inbox</h1><p>UC-04 / UC-05 · Review, approve, reject or delegate.</p></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn ghost" data-action="delegate"><svg class="ic sm"><use href="#i-shuffle"/></svg>Delegate</button>
+            <button class="btn approve" data-action="bulk-approve"><svg class="ic sm"><use href="#i-check"/></svg>Approve selected</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <select id="inboxFilter" data-action="inbox-filter"><option value="pending">Awaiting my action</option><option value="all">All in my queue</option></select>
+          <span class="tiny muted" id="inboxCountText"></span>
+        </div>
+        <div id="inboxList" class="grid" style="gap:12px"></div>
+      </section>
+
+      <!-- ---------- Team Calendar ---------- -->
+      <section class="screen" id="scr-calendar">
+        <div class="page-head">
+          <div><h1>Team Calendar</h1><p>UC-03 · Only approved leave is shown, after final acceptance.</p></div>
+          <button class="btn primary" data-action="goto" data-screen="apply" data-roles="employee,manager,hr"><svg class="ic sm"><use href="#i-plus"/></svg>Apply Leave</button>
+        </div>
+        <div class="card">
+          <div class="toolbar">
+            <button class="icon-btn" data-action="cal-prev"><svg class="ic"><use href="#i-cl"/></svg></button>
+            <h3 id="calTitle" style="min-width:160px;text-align:center">November 2026</h3>
+            <button class="icon-btn" data-action="cal-next"><svg class="ic"><use href="#i-cr"/></svg></button>
+            <div class="spacer"></div>
+            <select id="calDept" data-action="cal-filter" style="width:auto"><option value="all">All departments</option><option value="Engineering">Engineering</option><option value="HR">HR</option><option value="Finance">Finance</option></select>
+            <button class="btn ghost sm" data-action="cal-today">Today</button>
+          </div>
+          <div class="cal-head"><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div></div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="legend-row">
+            <span><i style="background:var(--green)"></i>Approved leave</span>
+            <span><i style="background:var(--yellow-soft);border:1px solid #f4dc9c"></i>Public holiday</span>
+            <span><i style="background:var(--primary)"></i>Today</span>
+          </div>
+        </div>
+      </section>
+      <!-- ---------- Leave Types & Policy ---------- -->
+      <section class="screen" id="scr-leavetypes">
+        <div class="page-head">
+          <div><h1>Leave Types &amp; Policy</h1><p>UC-07 · Entitlement, accrual, carry-forward and notice settings.</p></div>
+          <button class="btn primary" data-action="add-leavetype"><svg class="ic sm"><use href="#i-plus"/></svg>New leave type</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Statutory entitlement grid <span class="tag statutory">Act 265</span></h3><span class="tiny muted">Engine applies max(company, statutory)</span></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Leave type</th><th>&lt; 2 years</th><th>2 – 5 years</th><th>&gt; 5 years</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td><b>Annual Leave</b></td><td>8 days</td><td>12 days</td><td>16 days</td><td class="muted">Accrues monthly; pro-rated on exit</td></tr>
+              <tr><td><b>Medical (MC)</b></td><td>14 days</td><td>18 days</td><td>22 days</td><td class="muted">+ 60 days hospitalisation</td></tr>
+              <tr><td><b>Maternity</b></td><td colspan="3" style="text-align:center">98 consecutive days</td><td class="muted">Employed ≥ 90 days</td></tr>
+              <tr><td><b>Paternity</b></td><td colspan="3" style="text-align:center">7 consecutive days</td><td class="muted">Married, 5 births cap</td></tr>
+              <tr><td><b>Public Holidays</b></td><td colspan="3" style="text-align:center">11 paid days (5 employer-chosen)</td><td class="muted">Federal + state calendars</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="card mt16">
+          <div class="card-head"><h3>Configured leave types</h3><span class="tiny muted" id="ltCount"></span></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Code</th><th>Name</th><th>Entitlement</th><th>Accrual</th><th>Carry forward</th><th>Notice</th><th>Flags</th><th>Active</th><th></th></tr></thead>
+            <tbody id="leaveTypesBody"></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ---------- Workflow Builder ---------- -->
+      <section class="screen" id="scr-workflow">
+        <div class="page-head">
+          <div><h1>Approval Workflow</h1><p>UC-08 · Sequential or same-level (any-one) approval, with scopes.</p></div>
+          <button class="btn primary" data-action="save-workflow"><svg class="ic sm"><use href="#i-check"/></svg>Save workflow</button>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="card-head"><h3>Workflow: Standard Leave</h3><span class="pill">Default</span></div>
+            <div class="field">
+              <label>Approval mode</label>
+              <div class="field-row" style="grid-template-columns:1fr 1fr">
+                <button class="btn ghost" id="modeSeq" data-action="wf-mode" data-mode="sequential" style="justify-content:flex-start">Sequential (multi-level)</button>
+                <button class="btn ghost" id="modePar" data-action="wf-mode" data-mode="parallel" style="justify-content:flex-start">Same level (any one)</button>
+              </div>
+              <div class="hint" id="modeHint"></div>
+            </div>
+            <div class="lbl" style="margin:16px 0 8px">Steps</div>
+            <div class="seq" id="wfSteps"></div>
+            <button class="btn ghost sm" data-action="wf-add"><svg class="ic sm"><use href="#i-plus"/></svg>Add step</button>
+            <div class="notice mt16"><svg class="ic"><use href="#i-info"/></svg><div>Leave types that require a <b>substitute</b> must have cover assigned first, then approval from the <b>manager</b> and <b>HR admin</b>.</div></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Scope rules</h3><button class="btn ghost sm" data-action="scope-add"><svg class="ic sm"><use href="#i-plus"/></svg>Add scope</button></div>
+            <div id="wfScopes"></div>
+            <div class="card-head" style="margin-top:20px"><h3>Runtime settings</h3></div>
+            <div class="sum-line"><span>Approval SLA</span><b class="b">2 working days</b></div>
+            <div class="sum-line"><span>Reminder / escalation</span><b class="b">1 day / 3 days</b></div>
+            <div class="sum-line"><span>Delegation</span><b class="b">Allowed</b></div>
+            <div class="sum-line"><span>Fallback if no approver</span><b class="b">HR Admin</b></div>
+            <div class="sum-line"><span>Payroll cut-off</span><b class="b">25th of month</b></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- Holiday Calendar ---------- -->
+      <section class="screen" id="scr-holidays">
+        <div class="page-head">
+          <div><h1>Holiday Calendar</h1><p>UC-09 · Federal, state and company holidays. Working days drive day-counting.</p></div>
+          <button class="btn primary" data-action="add-holiday"><svg class="ic sm"><use href="#i-plus"/></svg>Add holiday</button>
+        </div>
+        <div class="notice warn" style="margin-bottom:16px"><svg class="ic"><use href="#i-alert"/></svg><div><b>11 paid public holidays</b> per year — 5 chosen by the employer. State calendars differ; a PH inside an AL range is <b>not</b> deducted. A PH worked creates <b>Replacement Leave</b> 1:1.</div></div>
+        <div class="card">
+          <div class="toolbar">
+            <select id="holYear" data-action="hol-filter" style="width:auto"><option>2026</option><option>2027</option></select>
+            <select id="holState" data-action="hol-filter" style="width:auto"><option value="all">All states</option><option value="SEL">Selangor</option><option value="WLY">Kuala Lumpur</option><option value="JHR">Johor</option></select>
+            <div class="spacer"></div><span class="tiny muted" id="holCount"></span>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Date</th><th>Holiday</th><th>Source</th><th>State</th><th>Replacement</th><th></th></tr></thead>
+            <tbody id="holidaysBody"></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ---------- Balance Ledger ---------- -->
+      <section class="screen" id="scr-ledger">
+        <div class="page-head">
+          <div><h1>Balance Ledger</h1><p>UC-10 / UC-11 · Append-only transactions; every change has a reason.</p></div>
+          <button class="btn primary" data-action="adjust"><svg class="ic sm"><use href="#i-plus"/></svg>Adjust balance</button>
+        </div>
+        <div class="card">
+          <div class="toolbar">
+            <label class="tiny b">Employee</label>
+            <select id="ledgerEmp" data-action="ledger-emp" style="width:auto;min-width:220px"></select>
+            <div class="spacer"></div><span class="pill"><svg class="ic sm"><use href="#i-ledger"/></svg>Immutable ledger</span>
+          </div>
+          <div class="grid g4" id="ledgerBalances"></div>
+        </div>
+        <div class="card mt16">
+          <div class="card-head"><h3>Transactions</h3><span class="tiny muted" id="ledgerCount"></span></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Date</th><th>Type</th><th>Leave</th><th>Qty</th><th>Balance after</th><th>Reference</th><th>Reason</th></tr></thead>
+            <tbody id="ledgerBody"></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ---------- Reports ---------- -->
+      <section class="screen" id="scr-reports">
+        <div class="page-head">
+          <div><h1>Leave Reports</h1><p>UC-12 / UC-13 · Utilisation, liability and payroll-ready export.</p></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn ghost" data-action="payroll-export"><svg class="ic sm"><use href="#i-ledger"/></svg>Payroll cut-off export</button>
+            <button class="btn primary" data-action="export"><svg class="ic sm"><use href="#i-down"/></svg>Export CSV</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <select id="repYear" data-action="rep-filter" style="width:auto"><option>2026</option><option>2025</option></select>
+          <select id="repDept" data-action="rep-filter" style="width:auto"><option value="all">All departments</option><option>Engineering</option><option>HR</option><option>Finance</option></select>
+        </div>
+        <div id="repPayroll"></div>
+        <div class="grid g4" id="repKpis"></div>
+        <div class="grid g2 mt16">
+          <div class="card"><div class="card-head"><h3>Days taken by leave type</h3></div><div class="chart" id="repChart"></div></div>
+          <div class="card"><div class="card-head"><h3>Leave liability (unused days)</h3><span class="pill soft-accent">Payroll input</span></div><div id="repLiability"></div></div>
+        </div>
+        <div class="card mt16"><div class="card-head"><h3>Request summary</h3></div><div class="table-wrap"><table><thead><tr><th>Type</th><th>Requests</th><th>Days</th><th>Approved</th><th>Pending</th></tr></thead><tbody id="repBody"></tbody></table></div></div>
+      </section>
+
+      <!-- ---------- Audit Trail ---------- -->
+      <section class="screen" id="scr-audit">
+        <div class="page-head">
+          <div><h1>Audit Trail</h1><p>PDPA / compliance · immutable record of all writes and configuration changes.</p></div>
+          <span class="pill"><svg class="ic sm"><use href="#i-ledger"/></svg>Read only</span>
+        </div>
+        <div class="notice" style="margin-bottom:16px"><svg class="ic"><use href="#i-info"/></svg><div>Records are append-only. Leave balances can only change through <b>leave_balance_transactions</b>; medical attachments are encrypted and access is logged.</div></div>
+        <div class="card">
+          <div class="toolbar">
+            <select id="auditFilter" data-action="audit-filter" style="width:auto"><option value="all">All actions</option><option value="LEAVE">Leave lifecycle</option><option value="POLICY">Policy / config</option><option value="ACCESS">Access / delegation</option><option value="EXPORT">Export</option></select>
+            <div class="spacer"></div><span class="tiny muted" id="auditCount"></span>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Category</th><th>Entity</th><th>Detail</th><th>IP</th></tr></thead>
+            <tbody id="auditBody"></tbody>
+          </table></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+/* ============================================================
+   STATE — mock data mirrors plan.md entities
+   ============================================================ */
+const ME = 'Aina Najwa';
+const EMP_DEPT = {'Aina Najwa':'Engineering','Li Wei Ming':'Engineering','Siti Aminah':'HR','Arun Kumar':'Engineering','Mei Ling':'Finance'};
+const TODAY = new Date(2026, 10, 17);
+const TYPE_INFO = {
+  AL:{name:'Annual Leave',        ms:'Cuti Tahunan',    color:'#187B99', daysText:'(10d)', substitute:true,  statutory:true,  notice:3,  negative:false, doc:false, carry:'8 days → 31 Mar', accrual:'Monthly 1/12',   paid:true},
+  MC:{name:'Medical Leave',       ms:'Cuti Sakit',      color:'#FF7F6E', daysText:'(14d)', substitute:false, statutory:true,  notice:0,  negative:false, doc:true,  carry:'Not carried',     accrual:'Service band',    paid:true},
+  EL:{name:'Emergency Leave',     ms:'Cuti Kecemasan',  color:'#E14B4B', daysText:'',      substitute:false, statutory:false, notice:0,  negative:true,  doc:false, carry:'N/A',            accrual:'Company benefit', paid:true},
+  RL:{name:'Replacement Leave',   ms:'Cuti Ganti',      color:'#28A96C', daysText:'',      substitute:true,  statutory:false, notice:1,  negative:false, doc:false, carry:'Expire 6 months', accrual:'PH worked 1:1',   paid:true},
+  UL:{name:'Unpaid Leave',        ms:'Cuti Tanpa Gaji', color:'#60757E', daysText:'',      substitute:true,  statutory:false, notice:7,  negative:true,  doc:false, carry:'N/A',            accrual:'Discretionary',    paid:false},
+  PL:{name:'Paternity Leave',     ms:'Cuti Bapa',       color:'#4C8BF5', daysText:'(3d)',  substitute:true,  statutory:true,  notice:7,  negative:false, doc:true,  carry:'N/A',            accrual:'Per birth',       paid:true},
+  ML:{name:'Maternity Leave',     ms:'Cuti Bersalin',   color:'#9B6DC6', daysText:'(60d)', substitute:true,  statutory:true,  notice:30, negative:false, doc:true,  carry:'N/A',            accrual:'Per birth',       paid:true},
+  CL:{name:'Compositional leave', ms:'Cuti Komposisi',  color:'#D68910', daysText:'(3d)',  substitute:false, statutory:false, notice:0,  negative:false, doc:false, carry:'N/A',            accrual:'Company benefit', paid:true},
+  HL:{name:'Hospital Leave',      ms:'Cuti Hospital',   color:'#5D6D7E', daysText:'(30d)', substitute:false, statutory:false, notice:0,  negative:false, doc:true,  carry:'N/A',            accrual:'Company benefit', paid:true}
+};
+const allCodes=()=>Object.keys(TYPE_INFO);
+
+const state = {
+  role:'employee', screen:'dashboard', modal:null, notifOpen:false,
+  draft:{type:'AL', start:'', end:'', startSession:'FULL', endSession:'FULL', reason:'', handover:'', file:null, waived:false, editId:null},
+  workflow:{mode:'sequential', steps:[
+    {name:'Direct Manager', role:'manager', delegate:true},
+    {name:'HR Admin', role:'hr', delegate:true}
+  ], scopes:[
+    {type:'Substitute', value:'AL, RL, UL, PL, ML → cover first'},
+    {type:'Department', value:'All departments'}
+  ]},
+  holidays:[
+    {id:'H1',date:'2026-08-31',name:'National Day (Merdeka)',source:'Federal',state:'All',year:2026,repl:'—'},
+    {id:'H2',date:'2026-09-16',name:'Malaysia Day',source:'Federal',state:'All',year:2026,repl:'—'},
+    {id:'H3',date:'2026-11-08',name:'Deepavali',source:'State',state:'SEL, WLY',year:2026,repl:'—'},
+    {id:'H4',date:'2026-12-25',name:'Christmas Day',source:'Federal',state:'All',year:2026,repl:'—'},
+    {id:'H5',date:'2027-01-01',name:"New Year's Day",source:'Federal',state:'All',year:2027,repl:'—'},
+    {id:'H6',date:'2026-11-28',name:'Company Closure Day',source:'Company',state:'All',year:2026,repl:'2026-11-30'}
+  ],
+  balances:{
+    'Aina Najwa':{AL:7,MC:12,EL:3,RL:2,UL:0,PL:3,ML:60,CL:3,HL:30},
+    'Li Wei Ming':{AL:5,MC:12,EL:3,RL:0,UL:0,PL:3,ML:60,CL:3,HL:30},
+    'Siti Aminah':{AL:7,MC:14,EL:3,RL:1,UL:0,PL:3,ML:60,CL:3,HL:30},
+    'Arun Kumar':{AL:3,MC:10,EL:3,RL:0,UL:0,PL:3,ML:60,CL:3,HL:30},
+    'Mei Ling':{AL:6,MC:15,EL:3,RL:0,UL:0,PL:3,ML:60,CL:3,HL:30}
+  },
+  leaveTypes:[
+    {code:'AL',name:'Annual Leave',ent:10,accrual:'Monthly 1/12',carry:'8 days → 31 Mar',notice:3,statutory:true,paid:true,active:true,negative:false,doc:false,daysText:'(10d)',substitute:true},
+    {code:'MC',name:'Medical Leave',ent:14,accrual:'Service band',carry:'Not carried',notice:0,statutory:true,paid:true,active:true,negative:false,doc:true,daysText:'(14d)',substitute:false},
+    {code:'EL',name:'Emergency Leave',ent:0,accrual:'Company benefit',carry:'N/A',notice:0,statutory:false,paid:true,active:true,negative:true,doc:false,daysText:'',substitute:false},
+    {code:'RL',name:'Replacement Leave',ent:0,accrual:'PH worked 1:1',carry:'Expire 6 months',notice:1,statutory:false,paid:true,active:true,negative:false,doc:false,daysText:'',substitute:true},
+    {code:'UL',name:'Unpaid Leave',ent:0,accrual:'Discretionary',carry:'N/A',notice:7,statutory:false,paid:false,active:true,negative:true,doc:false,daysText:'',substitute:true},
+    {code:'PL',name:'Paternity Leave',ent:3,accrual:'Per birth',carry:'N/A',notice:7,statutory:true,paid:true,active:true,negative:false,doc:true,daysText:'(3d)',substitute:true},
+    {code:'ML',name:'Maternity Leave',ent:60,accrual:'Per birth',carry:'N/A',notice:30,statutory:true,paid:true,active:true,negative:false,doc:true,daysText:'(60d)',substitute:true},
+    {code:'CL',name:'Compositional leave',ent:3,accrual:'Company benefit',carry:'N/A',notice:0,statutory:false,paid:true,active:true,negative:false,doc:false,daysText:'(3d)',substitute:false},
+    {code:'HL',name:'Hospital Leave',ent:30,accrual:'Company benefit',carry:'N/A',notice:0,statutory:false,paid:true,active:true,negative:false,doc:true,daysText:'(30d)',substitute:false}
+  ],
+  requests:[
+    {id:'REQ-2026-0142',owner:'Li Wei Ming',type:'AL',start:'2026-11-23',end:'2026-11-24',ss:'FULL',es:'FULL',days:2,reason:'Family event out of town.',handover:'Arun Kumar',file:null,status:'PENDING',step:2,submitted:'17 Nov 2026, 09:12',dept:'Engineering',
+      steps:[{name:'Substitute · Arun Kumar',role:'employee',status:'approved'},{name:'Direct Manager',role:'manager',status:'pending'},{name:'HR Admin',role:'hr',status:'pending'}],
+      timeline:[{label:'Submitted',by:'Li Wei Ming',status:'ok',time:'17 Nov 09:12',note:'Request created'},{label:'Substitute assigned',by:'Li Wei Ming',status:'ok',time:'17 Nov 09:12',note:'Handover to Arun Kumar before manager and admin approval'}]},
+    {id:'REQ-2026-0141',owner:'Siti Aminah',type:'MC',start:'2026-11-18',end:'2026-11-19',ss:'FULL',es:'FULL',days:2,reason:'Medical check-up and recovery.',handover:'Mei Ling',file:'MC_1811.pdf',status:'PENDING',step:2,submitted:'16 Nov 2026, 16:40',dept:'HR',
+      steps:[{name:'Direct Manager',role:'manager',status:'approved'},{name:'HR Admin',role:'hr',status:'pending'}],
+      timeline:[{label:'Submitted',by:'Siti Aminah',status:'ok',time:'16 Nov 16:40',note:'MC attached'},{label:'Direct Manager approved',by:'Arun Kumar',status:'ok',time:'17 Nov 08:05',note:'OK, cover arranged'}]},
+    {id:'REQ-2026-0138',owner:'Arun Kumar',type:'RL',start:'2026-11-10',end:'2026-11-10',ss:'FULL',es:'FULL',days:1,reason:'Replacement for working on Deepavali.',handover:'—',file:null,status:'APPROVED',step:2,submitted:'02 Nov 2026, 10:00',dept:'Engineering',
+      steps:[{name:'HR Manager',role:'hr',status:'approved'}],
+      timeline:[{label:'Submitted',by:'Arun Kumar',status:'ok',time:'02 Nov 10:00',note:'PH worked on 8 Nov'},{label:'HR Manager approved',by:'HR Manager',status:'ok',time:'03 Nov 11:20',note:'RL granted 1:1'}]},
+    {id:'REQ-2026-0135',owner:ME,type:'AL',start:'2026-10-05',end:'2026-10-07',ss:'FULL',es:'FULL',days:3,reason:'Annual holiday.',handover:'Siti Aminah',file:null,status:'APPROVED',step:2,submitted:'25 Sep 2026, 14:22',dept:'Engineering',
+      steps:[{name:'Direct Manager',role:'manager',status:'approved'},{name:'HR Admin',role:'hr',status:'approved'}],
+      timeline:[{label:'Submitted',by:ME,status:'ok',time:'25 Sep 14:22',note:'—'},{label:'Direct Manager approved',by:'Manager',status:'ok',time:'26 Sep 09:00',note:'Approved'},{label:'HR Admin approved',by:'HR Admin',status:'ok',time:'26 Sep 15:30',note:'Ledger debited 3 days'}]},
+    {id:'REQ-2026-0130',owner:'Mei Ling',type:'UL',start:'2026-09-20',end:'2026-09-20',ss:'FULL',es:'FULL',days:1,reason:'Personal matter.',handover:'—',file:null,status:'REJECTED',step:1,submitted:'18 Sep 2026, 11:02',dept:'Finance',
+      steps:[{name:'Direct Manager',role:'manager',status:'rejected'}],
+      timeline:[{label:'Submitted',by:'Mei Ling',status:'ok',time:'18 Sep 11:02',note:'—'},{label:'Direct Manager rejected',by:'Manager',status:'bad',time:'18 Sep 13:40',note:'Insufficient coverage that week'}]}
+  ],
+  ledger:[
+    {date:'2026-11-01',emp:ME,type:'AL',txn:'ACCRUAL',qty:1,bal:9,ref:'JOB-accrue',reason:'Monthly accrual (1/12 of 12)'},
+    {date:'2026-10-26',emp:ME,type:'AL',txn:'DEBIT',qty:-3,bal:8,ref:'REQ-2026-0135',reason:'Approved leave 05–07 Oct'},
+    {date:'2026-10-01',emp:ME,type:'AL',txn:'ACCRUAL',qty:1,bal:11,ref:'JOB-accrue',reason:'Monthly accrual (1/12 of 12)'},
+    {date:'2026-04-01',emp:ME,type:'AL',txn:'CARRY_IN',qty:2,bal:10,ref:'JOB-carry',reason:'Carry forward from 2025, expires 31 Mar 2027'},
+    {date:'2026-11-01',emp:'Li Wei Ming',type:'AL',txn:'ACCRUAL',qty:1,bal:5,ref:'JOB-accrue',reason:'Monthly accrual'},
+    {date:'2026-11-02',emp:'Siti Aminah',type:'MC',txn:'DEBIT',qty:-2,bal:14,ref:'REQ-2026-0141',reason:'Pending HR approval — not yet debited (sample)'},
+    {date:'2026-11-01',emp:'Arun Kumar',type:'RL',txn:'RL_GRANT',qty:1,bal:0,ref:'H3 / PH worked',reason:'Worked on Deepavali 8 Nov'},
+    {date:'2026-11-10',emp:'Arun Kumar',type:'RL',txn:'DEBIT',qty:-1,bal:1,ref:'REQ-2026-0138',reason:'Approved replacement leave'}
+  ],
+  notifications:[
+    {title:'New leave request',body:'Li Wei Ming applied for Annual Leave (2 days).',time:'17 Nov 09:12'},
+    {title:'Awaiting your approval',body:'Siti Aminah · Medical Leave is at HR step.',time:'17 Nov 08:05'},
+    {title:'Public holiday tomorrow',body:'Company Closure Day on 28 Nov (Selangor).',time:'16 Nov 17:30'}
+  ],
+  audit:[
+    {time:'18 Nov 08:10',actor:'HR Admin',action:'APPROVE',cat:'LEAVE',entity:'REQ-2026-0141',detail:'Final HR approval — MC ledger debited 2 days',ip:'10.2.14.31'},
+    {time:'17 Nov 09:12',actor:'Employee',action:'SUBMIT',cat:'LEAVE',entity:'REQ-2026-0142',detail:'Annual Leave 23–24 Nov submitted; workflow started',ip:'10.2.18.77'},
+    {time:'01 Nov 00:05',actor:'Scheduler',action:'JOB_ACCRUE',cat:'POLICY',entity:'JOB-accrue',detail:'Monthly AL accrual 1/12 credited to 5 employees',ip:'system'},
+    {time:'25 Oct 14:02',actor:'HR Admin',action:'POLICY_UPDATE',cat:'POLICY',entity:'leave_types/MC',detail:'Document threshold set to 3 days',ip:'10.2.14.31'}
+  ],
+  delegation:null,
+  payrollExports:[],
+  calMonth:new Date(2026,10,1), calDept:'all',
+  reqTab:'new', reqFilter:'all', reqSearch:'', inboxFilter:'pending', ledgerEmp:ME, repDept:'all', repYear:2026, auditFilter:'all'
+};
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ico = (n, cls='') => '<svg class="ic ' + cls + '"><use href="#i-' + n + '"/></svg>';
+function parseISO(s){ if(!s) return null; const p=s.split('-').map(Number); return new Date(p[0],p[1]-1,p[2]); }
+function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmt(s, opt){ if(!s) return '—'; const d = typeof s==='string' ? parseISO(s) : s; return d.toLocaleDateString('en-GB', opt || {day:'2-digit',month:'short'}); }
+function isWeekend(d){ return d.getDay()===0 || d.getDay()===6; }
+function isPH(key){ return state.holidays.some(h=>h.date===key); }
+function phName(key){ const h=state.holidays.find(x=>x.date===key); return h?h.name:''; }
+function statusTag(s){ return '<span class="tag '+s.toLowerCase()+'">'+esc(s.charAt(0)+s.slice(1).toLowerCase())+'</span>'; }
+function typePill(code){ return '<span class="pill" style="background:'+TYPE_INFO[code].color+'18;color:'+TYPE_INFO[code].color+'">'+code+' · '+TYPE_INFO[code].name+'</span>'; }
+function initial(n){ return n.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase(); }
+function toast(msg, kind){
+  const el=document.createElement('div'); el.className='toast '+(kind||'');
+  el.innerHTML=(kind==='ok'?ico('check'):kind==='bad'?ico('x'):ico('info'))+'<span>'+esc(msg)+'</span>';
+  $('toastRoot').appendChild(el); setTimeout(()=>el.remove(), 3600);
+}
+function audit(action, cat, entity, detail){
+  state.audit.unshift({time:'18 Nov 10:30',actor:state.role==='hr'?'HR Admin':state.role==='manager'?'Direct Manager':state.role==='auditor'?'Auditor':ME,action:action,cat:cat,entity:entity,detail:detail,ip:'10.2.18.77'});
+}
+function delegationActive(){
+  const d=state.delegation; if(!d) return null;
+  return (iso(TODAY)>=d.from && iso(TODAY)<=d.until) ? d : null;
+}
+function openModal(html, wide){ $('modalRoot').innerHTML='<div class="backdrop" data-action="close-modal"></div><div class="modal '+(wide?'wide':'')+'">'+html+'</div>'; document.body.classList.add('no-scroll'); }
+function closeModal(){ $('modalRoot').innerHTML=''; document.body.classList.remove('no-scroll'); }
+function modalHead(title){ return '<div class="modal-head"><h3>'+esc(title)+'</h3><button class="icon-btn" data-action="close-modal">'+ico('x')+'</button></div>'; }
+function canCancel(r){
+  if(!r || state.role==='auditor') return false;
+  return state.role==='hr' || r.owner===ME;
+}
+
+/* Day-count engine (plan.md §6 rule 6–7) */
+function computeDays(start,end,ss,es){
+  if(!start||!end) return {days:0,lines:[],ph:0,we:0,error:false};
+  const s=parseISO(start), e=parseISO(end);
+  if(e<s) return {days:0,lines:[],ph:0,we:0,error:'End date must be on or after the start date.'};
+  let total=0, ph=0, we=0; const lines=[];
+  const d=new Date(s);
+  while(d<=e){
+    const key=iso(d), weekend=isWeekend(d), holiday=isPH(key);
+    let weight=0, kind='working', label='';
+    if(weekend){ kind='we'; we++; label='Weekend'; }
+    else if(holiday){ kind='ph'; ph++; label='PH · '+phName(key); }
+    else if(key===start && key===end){
+      weight=1; label = (ss==='FULL'&&es==='FULL')?'Full day':(ss!==es?'AM + PM':(ss==='AM'?'Morning':'Afternoon'));
+    } else if(key===start){ weight=ss==='FULL'?1:0.5; label=ss==='FULL'?'Full day':(ss==='AM'?'Morning only':'Afternoon only'); }
+    else if(key===end){ weight=es==='FULL'?1:0.5; label=es==='FULL'?'Full day':(es==='AM'?'Morning only':'Afternoon only'); }
+    else { weight=1; label='Full day'; }
+    total+=weight;
+    lines.push({date:key,label:label,weight:weight,kind:kind});
+    d.setDate(d.getDate()+1);
+  }
+  return {days:total,lines:lines,ph:ph,we:we,error:false};
+}
+function workingDaysUntil(start){
+  if(!start) return 0; let n=0; const d=new Date(TODAY);
+  while(iso(d)<start && n<400){ d.setDate(d.getDate()+1); if(!isWeekend(d)&&!isPH(iso(d))) n++; }
+  return n;
+}
+function overlaps(start,end,excludeId){
+  return state.requests.filter(r=>r.id!==excludeId && ['PENDING','APPROVED'].includes(r.status) && !(r.end<start || r.start>end));
+}
+function upcomingPH(){
+  const t=iso(TODAY);
+  return state.holidays.filter(h=>h.date>=t).sort((a,b)=>a.date.localeCompare(b.date))[0];
+}
+function pendingQueue(role){
+  return state.requests.filter(r=>r.status==='PENDING' && r.steps[r.step-1] && r.steps[r.step-1].role===role);
+}
+/* ============================================================
+   Navigation & role
+   ============================================================ */
+const TITLES={dashboard:'Dashboard',apply:'Apply Leave',requests:'My Requests',calendar:'Team Calendar',inbox:'Approval Inbox',leavetypes:'Leave Types & Policy',workflow:'Approval Workflow',holidays:'Holiday Calendar',ledger:'Balance Ledger',reports:'Reports',audit:'Audit Trail'};
+function navigate(s){
+  const allowed = {employee:['dashboard','apply','requests','calendar'],manager:['dashboard','apply','requests','calendar','inbox'],hr:['dashboard','apply','requests','calendar','inbox','leavetypes','workflow','holidays','ledger','reports','audit'],auditor:['dashboard','requests','calendar','audit']};
+  if(!allowed[state.role].includes(s)) s='dashboard';
+  state.screen=s;
+  document.querySelectorAll('.screen').forEach(el=>el.classList.toggle('active', el.id==='scr-'+s));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active', el.dataset.screen===s));
+  $('topTitle').textContent=TITLES[s];
+  $('sidebar').classList.remove('open');
+  renderAll();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function applyRole(){
+  document.querySelectorAll('[data-roles]').forEach(el=>{
+    el.style.display = el.dataset.roles.split(',').includes(state.role) ? '' : 'none';
+  });
+  const map={employee:'AN',manager:'AN',hr:'HR',auditor:'DP'};
+  $('avatar').textContent=map[state.role];
+  if(state.role==='hr'){ $('dashTitle').textContent='HR Overview'; $('dashSub').textContent='Leave operations across the organisation · 2026.'; }
+  else if(state.role==='manager'){ $('dashTitle').textContent='Team Overview, Aina 👋'; $('dashSub').textContent='Your approvals and team leave at a glance.'; }
+  else if(state.role==='auditor'){ $('dashTitle').textContent='Compliance Overview'; $('dashSub').textContent='Read-only access to leave records and audit trail.'; }
+  else { $('dashTitle').textContent='Good morning, Aina 👋'; $('dashSub').textContent='Here is your leave overview for 2026.'; }
+  navigate(state.screen);
+}
+function renderAll(){
+  renderDashboard();
+  if(state.screen==='apply') renderApply();
+  if(state.screen==='requests') renderRequests();
+  if(state.screen==='inbox') renderInbox();
+  if(state.screen==='calendar') renderCalendar();
+  if(state.screen==='leavetypes') renderLeaveTypes();
+  if(state.screen==='workflow') renderWorkflow();
+  if(state.screen==='holidays') renderHolidays();
+  if(state.screen==='ledger') renderLedger();
+  if(state.screen==='reports') renderReports();
+  if(state.screen==='audit') renderAudit();
+  $('navInboxCount').textContent = pendingQueue('manager').length + pendingQueue('hr').length;
+}
+
+/* ============================================================
+   Dashboard
+   ============================================================ */
+function renderDashboard(){
+  const b=state.balances[ME];
+  $('balanceCards').innerHTML=['AL','MC','EL','RL','PL','ML','CL','HL'].map(c=>{
+    const info=TYPE_INFO[c], used=c==='AL'?3:c==='MC'?2:0, total=b[c]+used;
+    const pct=total?Math.round(b[c]/total*100):0;
+    const hasEnt=['AL','MC','PL','ML','CL','HL'].includes(c);
+    const meta=hasEnt?'of '+total+' days entitlement':(c==='RL'?'Expires in 6 months':'Company benefit');
+    return '<div class="card balance-card"><div class="code">'+c+'</div><div class="name">'+info.name+'</div>'+
+      '<div class="num">'+b[c]+'<small> days</small></div>'+
+      '<div class="bar"><i style="width:'+pct+'%;background:'+info.color+'"></i></div>'+
+      '<div class="meta">'+meta+'</div></div>';
+  }).join('');
+  const mine=state.requests.filter(r=>r.owner===ME);
+  const pend=mine.filter(r=>r.status==='PENDING').length;
+  const appr=mine.filter(r=>r.status==='APPROVED').length;
+  let stats='';
+  if(state.role==='hr'){
+    const allPend=state.requests.filter(r=>r.status==='PENDING').length;
+    const liability=Object.values(state.balances).reduce((a,x)=>a+x.AL,0);
+    stats=[
+      ['pending','inbox',allPend,'Awaiting approval'],
+      ['g','ledger',liability,'AL liability (days)'],
+      ['c','cal',state.requests.filter(r=>r.status==='APPROVED'&&iso(TODAY)>=r.start&&iso(TODAY)<=r.end).length,'On leave today']
+    ];
+  } else if(state.role==='manager'){
+    stats=[
+      ['y','inbox',pendingQueue('manager').length,'Requests to review'],
+      ['','cal',state.requests.filter(r=>r.status==='APPROVED'&&iso(TODAY)>=r.start&&iso(TODAY)<=r.end).length,'Team on leave today'],
+      ['g','check',state.requests.filter(r=>r.status==='APPROVED').length,'Team approved (2026)']
+    ];
+  } else if(state.role==='auditor'){
+    stats=[
+      ['','ledger',state.audit.length,'Audit entries'],
+      ['g','check',state.requests.filter(r=>r.status==='APPROVED').length,'Approved requests'],
+      ['c','list',state.ledger.length,'Ledger transactions']
+    ];
+  } else {
+    stats=[['y','clock',pend,'Pending requests'],['g','check',appr,'Approved in 2026'],['','cal',state.balances[ME].AL,'Annual leave left']];
+  }
+  $('dashStats').innerHTML=stats.map(s=>
+    '<div class="card stat"><div class="ico '+s[0]+'">'+ico(s[1])+'</div><div><b>'+s[2]+'</b><span>'+s[3]+'</span></div></div>'
+  ).join('');
+  const recent=(state.role==='employee'?mine:state.requests).slice(0,4);
+  $('dashRecent').innerHTML=recent.length?recent.map(r=>
+    '<div class="mini-row"><div class="grow"><b>'+esc(r.owner)+'</b><span>'+r.type+' · '+fmt(r.start)+' – '+fmt(r.end)+' · '+r.days+'d</span></div>'+statusTag(r.status)+'</div>'
+  ).join(''):'<div class="empty">No requests yet.</div>';
+  const ph=upcomingPH();
+  const queue=state.role==='manager'?pendingQueue('manager'):pendingQueue('hr');
+  let side='<div class="card"><div class="card-head"><h3>Next public holiday</h3>'+ico('globe')+'</div>'+
+    '<div class="notice"><div><b>'+esc(ph.name)+'</b><br><span class="tiny">'+fmt(ph.date,{weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · '+esc(ph.state)+'</span></div></div>'+
+    '<div class="notice warn mt16">'+ico('info')+'<div>Public holidays inside an AL period are <b>not deducted</b> from your balance.</div></div></div>';
+  if(state.role==='manager'||state.role==='hr'){
+    side+='<div class="card mt16"><div class="card-head"><h3>Approval queue</h3><span class="link" data-action="goto" data-screen="inbox">Open inbox →</span></div>'+
+      '<div class="stat"><div class="ico y">'+ico('inbox')+'</div><div><b>'+queue.length+'</b><span>Waiting for your decision</span></div></div></div>';
+  } else if(state.role==='auditor'){
+    side+='<div class="card mt16"><div class="card-head"><h3>Compliance</h3><span class="link" data-action="goto" data-screen="audit">Open audit trail →</span></div>'+
+      '<div class="stat"><div class="ico">'+ico('ledger')+'</div><div><b>'+state.audit.length+'</b><span>Logged events · read only</span></div></div></div>';
+  }
+  $('dashSide').innerHTML=side;
+}
+
+/* ============================================================
+   Apply Leave (UC-01)
+   ============================================================ */
+function renderTypeGrid(){
+  $('typeGrid').innerHTML=allCodes().map(c=>{
+    const i=TYPE_INFO[c], bal=state.balances[ME][c]||0;
+    const meta=c==='UL'?'Unpaid':bal+' days left';
+    return '<button class="type-card '+(state.draft.type===c?'on':'')+'" data-action="pick-type" data-type="'+c+'" title="'+esc(i.name)+(i.substitute?' — substitute required':'')+'">'+
+      '<span class="tc">'+c+'</span><span class="tn">'+esc(i.name)+'</span><span class="tb">'+meta+'</span></button>';
+  }).join('');
+}
+function renderHandover(){
+  const sel=$('applyHandover'), cur=state.draft.handover, needSub=!!TYPE_INFO[state.draft.type].substitute;
+  $('handoverLabel').innerHTML=needSub?'Substitute / handover colleague *':'Handover colleague';
+  $('handoverHint').textContent=needSub?'Required for this leave type — assign cover before manager and admin approval.':'Optional — assign a colleague to cover your work.';
+  sel.innerHTML='<option value="">'+(needSub?'— Select substitute * —':'— Select (optional) —')+'</option>'+
+    Object.keys(state.balances).filter(n=>n!==ME).map(n=>'<option '+(cur===n?'selected':'')+'>'+n+'</option>').join('');
+}
+function updateApply(){
+  const d=state.draft, info=TYPE_INFO[d.type];
+  const c=computeDays(d.start,d.end,d.startSession,d.endSession);
+  const bal=state.balances[ME][d.type]||0;
+  const after=bal-c.days;
+  $('sumDays').textContent=c.days;
+  $('sumBefore').textContent=(d.type==='UL'?'Unlimited':bal+' days');
+  $('sumAfter').innerHTML=(d.type==='UL'?'Unlimited':(after<0?'<span style="color:var(--red)">'+after+' days</span>':after+' days'));
+  $('sumBreakdown').innerHTML=c.lines.length?c.lines.map(l=>'<span class="chip '+l.kind+'" title="'+esc(l.label)+'">'+fmt(l.date)+' · '+(l.weight?l.weight+'d':'0d')+'</span>').join(''):'<span class="muted tiny">Select dates to see day-by-day calculation.</span>';
+  let warn='';
+  if(c.ph) warn+='<div class="notice warn" style="margin-top:8px">'+ico('info')+'<div><b>'+c.ph+' public holiday'+(c.ph>1?'s':'')+'</b> inside range — not deducted.</div></div>';
+  if(c.we) warn+='<div class="notice" style="margin-top:8px">'+ico('info')+'<div>'+c.we+' weekend day(s) skipped per working calendar.</div></div>';
+  if(after<0 && !info.negative) warn+='<div class="notice err" style="margin-top:8px">'+ico('alert')+'<div>Insufficient balance — '+d.type+' does not allow negative balance.</div></div>';
+  $('sumWarnings').innerHTML=warn;
+  const need=info.notice?workingDaysUntil(d.start):0;
+  const docNeeded=info.doc && c.days>3;
+  const ov=overlaps(d.start,d.end,d.editId);
+  const noticeOk=!info.notice||need>=info.notice||d.waived;
+  const policy=[
+    ['Notice period', d.waived?'WAIVED by HR':(info.notice?info.notice+' working days advance'+(d.start?' ('+need+' available)':''):(d.type==='EL'?'Post-approval allowed (24h)':'No minimum')), noticeOk],
+    ['Substitute', info.substitute?(d.handover?'Found — '+d.handover+' assigned before approval':'Required — find a substitute before manager and admin approval'):'Not required for this leave type', !info.substitute||!!d.handover],
+    ['Balance', d.type==='UL'?'Unpaid — discretionary':bal+' days available', !info.negative?after>=0:true],
+    ['Supporting document', docNeeded?'Required (MC for >3 days)':'Not required for this selection', !docNeeded||!!d.file],
+    ['Date overlap', ov.length?ov.length+' conflicting request(s) found':'No conflicting requests', ov.length===0],
+    ['Statutory basis', info.statutory?'Employment Act 1955 (Act 265)':'Company policy', true],
+    ['Max consecutive', 'Configured per leave type (default 30 days)', true]
+  ];
+  $('policyList').innerHTML=policy.map((p,i)=>'<li>'+ico(p[2]?'check':'x','sm')+
+    '<div><b>'+p[0]+'</b><br><span class="muted">'+p[1]+'</span>'+
+    (i===0&&!noticeOk&&state.role==='hr'?'<br><span class="link" data-action="waive-notice">Waive notice period (HR)</span>':'')+
+    (i===0&&d.waived?'<br><span class="link" data-action="unwaive-notice">Remove waiver</span>':'')+
+    '</div><span class="'+(p[2]?'ok':'bad')+'" style="margin-left:auto">'+ico(p[2]?'check':'x','sm')+'</span></li>').join('');
+}
+function renderApply(){
+  renderTypeGrid(); renderHandover();
+  const d=state.draft;
+  if(d.start) $('applyStart').value=d.start;
+  if(d.end) $('applyEnd').value=d.end;
+  $('applyReason').value=d.reason; $('charCount').textContent=d.reason.length;
+  $('fileLabel').innerHTML=d.file?'<b>'+esc(d.file)+'</b> attached — click to replace':'Click to upload <b>MC / supporting file</b>';
+  ['start','end'].forEach(w=>{
+    document.querySelectorAll('#sess'+ (w==='start'?'Start':'End') +' button').forEach(b=>b.classList.toggle('on',b.dataset.value===d[w+'Session']));
+  });
+  const info=TYPE_INFO[d.type];
+  $('applySummary').innerHTML='<div class="card-head"><h3>Live summary</h3><span class="pill">Rule engine</span></div>'+
+    '<div class="summary-big"><span id="sumDays">0</span><small>days requested</small></div>'+
+    '<div class="sum-line"><span>Balance before</span><b id="sumBefore">—</b></div>'+
+    '<div class="sum-line"><span>Balance after approval</span><b id="sumAfter">—</b></div>'+
+    '<div class="lbl" style="margin-top:12px">Day-by-day breakdown</div><div class="breakdown" id="sumBreakdown"></div><div id="sumWarnings"></div>';
+  $('policyCard').innerHTML='<div class="card-head"><h3>Policy check</h3>'+typePill(d.type)+'</div><ul class="policy-list" id="policyList"></ul>'+
+    '<div class="notice mt16">'+ico('info')+'<div><b>'+info.name+'</b> · '+info.accrual+'<br><span class="tiny">'+info.carry+' · '+(info.paid?'Paid':'Unpaid')+'</span></div></div>';
+  const del=delegationActive();
+  if(del) $('policyCard').insertAdjacentHTML('beforeend','<div class="notice warn mt16">'+ico('shuffle')+'<div><b>Approval delegated</b> to '+esc(del.to)+' until '+fmt(del.until)+'.</div></div>');
+  updateApply();
+}
+function validateApply(){
+  const d=state.draft, info=TYPE_INFO[d.type], errs=[];
+  const c=computeDays(d.start,d.end,d.startSession,d.endSession);
+  if(c.error) errs.push(c.error);
+  if(!d.start||!d.end) errs.push('Start date and end date are required.');
+  if(c.days<=0) errs.push('The selected range contains no working days.');
+  if(!d.reason.trim()) errs.push('Please enter a reason.');
+  if(d.start&&d.end&&overlaps(d.start,d.end,d.editId).length) errs.push('Dates overlap with an existing pending/approved request.');
+  if(info.notice && !d.waived && d.start && workingDaysUntil(d.start)<info.notice) errs.push('Notice period of '+info.notice+' working days is not met. Ask HR for a waiver.');
+  if(info.doc && c.days>3 && !d.file) errs.push('Supporting document is required for '+c.days+' days of '+d.type+'.');
+  if(info.substitute && !d.handover) errs.push('Find a substitute (handover colleague) for '+d.type+' before manager and admin approval.');
+  if(!info.negative && c.days>(state.balances[ME][d.type]||0)) errs.push('Insufficient '+d.type+' balance.');
+  return errs;
+}
+function submitLeave(saveDraft){
+  const d=state.draft;
+  if(!saveDraft){
+    const errs=validateApply();
+    if(errs.length){ $('applyErrors').innerHTML='<div class="errbox notice err">'+ico('alert')+'<div><b>Please fix ' +errs.length+' issue'+(errs.length>1?'s':'')+':</b><br>'+errs.map(e=>'• '+esc(e)).join('<br>')+'</div></div>'; return; }
+  }
+  const c=computeDays(d.start,d.end,d.startSession,d.endSession);
+  const info=TYPE_INFO[d.type], needsSub=!!info.substitute;
+  const del=delegationActive();
+  const mgrName=del?'Delegate: '+del.to:'Direct Manager';
+  const subNote='Handover to '+d.handover+' before manager and admin approval';
+  const subStep=needsSub?[{name:d.handover?'Substitute · '+d.handover:'Find substitute',role:'employee',status:d.handover?'approved':'pending'}]:[];
+  const baseSteps=subStep.concat([{name:mgrName,role:'manager',status:'pending'},{name:'HR Admin',role:'hr',status:'pending'}]);
+  const startStep=(needsSub&&d.handover)?2:1;
+  let req=d.editId?state.requests.find(x=>x.id===d.editId):null;
+  if(req){
+    Object.assign(req,{type:d.type,start:d.start,end:d.end,ss:d.startSession,es:d.endSession,days:c.days,
+      reason:d.reason,handover:d.handover||'—',file:d.file,waived:d.waived,status:saveDraft?'DRAFT':'PENDING',step:startStep,steps:baseSteps});
+    req.timeline.push({label:saveDraft?'Updated draft':'Resubmitted',by:ME,status:'ok',time:'18 Nov 10:35',note:d.waived?'Notice waived by HR':(d.file?'Document attached':'—')});
+    if(needsSub&&d.handover) req.timeline.push({label:'Substitute assigned',by:ME,status:'ok',time:'18 Nov 10:35',note:subNote});
+    audit(saveDraft?'DRAFT_UPDATE':'RESUBMIT','LEAVE',req.id,(saveDraft?'Draft updated':'Resubmitted')+' · '+d.type+' '+d.start+' → '+d.end);
+  } else {
+    const id='REQ-2026-'+String(150+state.requests.length).padStart(4,'0');
+    req={id:id,owner:ME,type:d.type,start:d.start,end:d.end,ss:d.startSession,es:d.endSession,days:c.days,
+      reason:d.reason,handover:d.handover||'—',file:d.file,waived:d.waived,status:saveDraft?'DRAFT':'PENDING',step:startStep,
+      submitted:'18 Nov 2026, 10:35',dept:EMP_DEPT[ME]||'Engineering',steps:baseSteps,
+      timeline:[{label:saveDraft?'Saved as draft':'Submitted',by:ME,status:'ok',time:'18 Nov 10:35',note:saveDraft?'Not submitted':(d.file?'Document attached':'—')}]
+        .concat(needsSub&&d.handover?[{label:'Substitute assigned',by:ME,status:'ok',time:'18 Nov 10:35',note:subNote}]:[])};
+    state.requests.unshift(req);
+    audit(saveDraft?'DRAFT_CREATE':'SUBMIT','LEAVE',id,(saveDraft?'Draft saved':'Submitted')+' · '+d.type+' '+d.start+' → '+d.end+(del?' · delegated to '+del.to:''));
+  }
+  state.draft={type:d.type,start:'',end:'',startSession:'FULL',endSession:'FULL',reason:'',handover:'',file:null,waived:false,editId:null};
+  $('applyErrors').innerHTML='';
+  state.reqTab='new'; state.reqFilter='all'; state.reqSearch='';
+  if($('reqSearch')) $('reqSearch').value='';
+  if($('reqFilter')) $('reqFilter').value='all';
+  toast(saveDraft?'Draft '+(d.editId?'updated':'saved'):req.id+' submitted · see it under New requests', saveDraft?'':'ok');
+  navigate('requests');
+}
+function editRequest(id){
+  const r=state.requests.find(x=>x.id===id);
+  if(!r || !(r.owner===ME || state.role==='hr') || !['DRAFT','REJECTED'].includes(r.status)) return;
+  state.draft={type:r.type,start:r.start,end:r.end,startSession:r.ss||'FULL',endSession:r.es||'FULL',reason:r.reason,handover:r.handover==='—'?'':r.handover,file:r.file,waived:!!r.waived,editId:r.id};
+  closeModal(); navigate('apply'); toast('Editing '+r.id+' — resubmit to restart approval');
+}
+
+/* ============================================================
+   My Requests
+   ============================================================ */
+const OPEN_STATUSES=['DRAFT','PENDING'];
+const PAST_STATUSES=['APPROVED','REJECTED','CANCELLED'];
+function scopedRequests(){
+  return state.requests.filter(r=>state.role==='employee'?r.owner===ME:true);
+}
+function filteredRequests(){
+  const q=state.reqSearch.toLowerCase(), statuses=state.reqTab==='new'?OPEN_STATUSES:PAST_STATUSES;
+  return scopedRequests().filter(r=>statuses.includes(r.status) &&
+    (state.reqFilter==='all'||r.status===state.reqFilter) &&
+    (!q || r.id.toLowerCase().includes(q) || r.type.toLowerCase().includes(q) || r.owner.toLowerCase().includes(q)));
+}
+function renderRequests(){
+  const scoped=scopedRequests(), list=filteredRequests();
+  $('newReqCount').textContent=scoped.filter(r=>OPEN_STATUSES.includes(r.status)).length;
+  $('pastReqCount').textContent=scoped.filter(r=>PAST_STATUSES.includes(r.status)).length;
+  document.querySelectorAll('#reqTabs .tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===state.reqTab));
+  const opts=state.reqTab==='new'?['all','DRAFT','PENDING']:['all','APPROVED','REJECTED','CANCELLED'];
+  $('reqFilter').innerHTML=opts.map(o=>'<option value="'+o+'">'+(o==='all'?'All statuses':o.charAt(0)+o.slice(1).toLowerCase())+'</option>').join('');
+  $('reqFilter').value=state.reqFilter;
+  $('reqCount').textContent=list.length+' record(s)';
+  const empty=state.reqTab==='new'
+    ?'No new requests. Apply leave and your pending request will appear here.'
+    :'No past requests yet.';
+  $('requestsBody').innerHTML=list.length?list.map(r=>
+    '<tr><td><b>'+r.id+'</b></td><td>'+typePill(r.type)+'</td><td>'+fmt(r.start)+' – '+fmt(r.end)+'</td><td><b>'+r.days+'</b></td><td class="muted">'+esc(r.submitted)+'</td><td>'+statusTag(r.status)+'</td>'+
+    '<td style="text-align:right;white-space:nowrap"><button class="btn ghost sm" data-action="detail" data-id="'+r.id+'">Details</button> '+
+    ((r.owner===ME||state.role==='hr')&&['DRAFT','REJECTED'].includes(r.status)&&state.role!=='auditor'?'<button class="btn ghost sm" data-action="edit" data-id="'+r.id+'">Edit &amp; resubmit</button> ':'')+
+    (canCancel(r)&&['PENDING','APPROVED','DRAFT'].includes(r.status)?'<button class="btn ghost sm" data-action="cancel" data-id="'+r.id+'">Cancel</button>':'')+'</td></tr>'
+  ).join(''):'<tr><td colspan="7"><div class="empty">'+ico('list')+'<br>'+empty+'</div></td></tr>';
+}
+function requestDetail(id, fromCalendar){
+  const r=state.requests.find(x=>x.id===id); if(!r) return;
+  const c=computeDays(r.start,r.end,r.ss||'FULL',r.es||'FULL');
+  const daily=c.lines.map(l=>'<span class="chip '+(l.weight?'':l.kind)+'">'+fmt(l.date)+' · '+(l.weight?l.weight+'d':'0d · '+(l.kind==='ph'?'PH':'weekend'))+'</span>').join('');
+  const html=modalHead(r.id+' · '+TYPE_INFO[r.type].name)+
+    '<div class="modal-body">'+
+    '<div style="margin-bottom:14px">'+statusTag(r.status)+' '+typePill(r.type)+(TYPE_INFO[r.type].statutory?' <span class="tag statutory">Statutory</span>':' <span class="tag policy">Policy</span>')+(r.waived?' <span class="tag pending">Notice waived</span>':'')+'</div>'+
+    '<div class="detail-grid">'+
+      '<div><span>Employee</span><b>'+esc(r.owner)+'</b></div><div><span>Department</span><b>'+esc(r.dept||'Engineering')+'</b></div>'+
+      '<div><span>Period</span><b>'+fmt(r.start,{day:'numeric',month:'long',year:'numeric'})+' → '+fmt(r.end,{day:'numeric',month:'long',year:'numeric'})+'</b></div>'+
+      '<div><span>Total days</span><b>'+r.days+' day(s)</b></div>'+
+      '<div><span>Handover</span><b>'+esc(r.handover||'—')+'</b></div><div><span>Document</span><b>'+esc(r.file||'—')+'</b></div>'+
+      '<div><span>Submitted</span><b>'+esc(r.submitted)+'</b></div><div><span>Workflow</span><b>'+(r.steps.length>1?'Sequential · '+r.steps.length+' steps':'Single step (HR Manager)')+'</b></div>'+
+    '</div>'+
+    '<div class="lbl">Reason</div><div class="notice">'+esc(r.reason)+'</div>'+
+    '<div class="lbl" style="margin-top:14px">Day breakdown <span class="muted tiny">(leave_request_days)</span></div><div class="breakdown">'+daily+'</div>'+
+    '<div class="lbl" style="margin-top:10px">Approval timeline <span class="muted tiny">(leave_approvals)</span></div>'+
+    '<ul class="timeline">'+r.timeline.map(t=>'<li class="'+(t.status==='ok'?'ok':t.status==='bad'?'bad':'pend')+'"><b>'+esc(t.label)+'</b><span>'+esc(t.by)+' · '+esc(t.time)+'</span>'+(t.note&&t.note!=='—'?'<p>'+esc(t.note)+'</p>':'')+'</li>').join('')+'</ul>'+
+    (r.status==='PENDING'?'<div class="notice warn">'+ico('clock')+'<div>Currently at <b>'+esc(r.steps[r.step-1].name)+'</b>. Balance is debited only on final approval.</div></div>':'')+
+    '</div><div class="modal-foot">'+
+      ((r.owner===ME||state.role==='hr')&&['DRAFT','REJECTED'].includes(r.status)&&state.role!=='auditor'?'<button class="btn ghost" data-action="edit" data-id="'+r.id+'">Edit &amp; resubmit</button>':'')+
+      (canCancel(r)&&['PENDING','APPROVED','DRAFT'].includes(r.status)?'<button class="btn ghost" data-action="cancel" data-id="'+r.id+'">Cancel request</button>':'')+
+      '<button class="btn primary" data-action="close-modal">Close</button></div>';
+  openModal(html,true);
+}
+function cancelRequest(id){
+  const r=state.requests.find(x=>x.id===id);
+  if(!canCancel(r)){ toast('You can only cancel your own requests.','bad'); return; }
+  openModal(modalHead('Cancel request · '+id)+'<div class="modal-body">'+
+    '<div class="notice warn">'+ico('alert')+'<div>You are about to cancel this <b>'+TYPE_INFO[r.type].name+'</b> request ('+fmt(r.start)+' – '+fmt(r.end)+').'+
+    (r.status==='APPROVED'?' A <b>REVERSAL</b> of '+r.days+' day(s) will be posted to the ledger.':' No balance change will occur.')+'</div></div>'+
+    '<div class="field mt16"><label>Reason for cancellation *</label><textarea id="cancelReason" placeholder="e.g. Plans changed"></textarea></div></div>'+
+    '<div class="modal-foot"><button class="btn ghost" data-action="close-modal">Keep request</button>'+
+    '<button class="btn reject" data-action="cancel-confirm" data-id="'+id+'">'+ico('x')+'Confirm cancel</button></div>');
+}
+function confirmCancel(id){
+  const reason=$('cancelReason').value.trim();
+  if(!reason){ toast('Please provide a cancellation reason.','bad'); return; }
+  const r=state.requests.find(x=>x.id===id);
+  if(!canCancel(r)){ toast('You can only cancel your own requests.','bad'); return; }
+  const reversed=r.status==='APPROVED';
+  if(reversed){
+    state.balances[r.owner][r.type]=(state.balances[r.owner][r.type]||0)+r.days;
+    state.ledger.unshift({date:iso(TODAY),emp:r.owner,type:r.type,txn:'REVERSAL',qty:r.days,bal:state.balances[r.owner][r.type],ref:id,reason:reason});
+  }
+  r.status='CANCELLED';
+  r.timeline.push({label:'Cancelled',by:state.role==='hr'?'HR Admin':ME,status:'bad',time:'18 Nov 10:40',note:reason});
+  audit('CANCEL','LEAVE',id,'Cancelled · '+reason+(reversed?' · REVERSAL '+r.days+'d':' · no ledger change'));
+  closeModal(); renderAll(); toast(id+' cancelled','bad');
+}
+
+/* ============================================================
+   Approval Inbox (UC-04 / UC-05)
+   ============================================================ */
+function renderInbox(){
+  let list=pendingQueue(state.role);
+  if(state.inboxFilter==='all') list=state.requests.filter(r=>r.steps.some(s=>s.role===state.role));
+  $('inboxCountText').textContent=list.length+' request(s) in queue';
+  $('inboxList').innerHTML=list.length?list.map(r=>{
+    const bal=state.balances[r.owner][r.type]||0;
+    const conflict=overlaps(r.start,r.end).filter(x=>x.id!==r.id&&x.status==='APPROVED');
+    return '<div class="card inbox-card"><div class="inbox-top">'+
+      '<input type="checkbox" class="inbox-check" data-id="'+r.id+'" style="width:16px;height:16px;margin-top:3px">'+
+      '<div class="emp"><div class="av">'+initial(r.owner)+'</div><div><b>'+esc(r.owner)+'</b><span>'+esc(r.dept||'Engineering')+'</span></div></div>'+
+      '<div class="grow"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+typePill(r.type)+statusTag(r.status)+'</div>'+
+      '<div class="inbox-meta"><span>Period <b>'+fmt(r.start)+' – '+fmt(r.end)+'</b></span><span>Days <b>'+r.days+'</b></span>'+
+      '<span>Submitted <b>'+esc(r.submitted)+'</b></span><span>Step <b>'+r.step+' of '+r.steps.length+'</b></span></div>'+
+      '<div class="context">'+ico('info')+'<div><b>'+esc(r.reason)+'</b><br>Balance after approval: <b>'+(r.type==='UL'?'Unlimited':(bal-r.days)+' days')+'</b>'+
+      (r.file?' · Document: <b>'+esc(r.file)+'</b>':'')+(conflict.length?' · <span style="color:var(--red)"><b>'+conflict.length+' approved leave overlap(s)</b></span>':' · No team conflicts')+'</div></div></div></div>'+
+      '<div class="inbox-actions"><button class="btn ghost sm" data-action="detail" data-id="'+r.id+'">View details</button>'+
+      '<div class="spacer"></div><button class="btn reject sm" data-action="review" data-id="'+r.id+'">'+ico('x')+'Reject</button>'+
+      '<button class="btn approve sm" data-action="review" data-id="'+r.id+'">'+ico('check')+'Approve</button></div></div>';
+  }).join(''):'<div class="card"><div class="empty">'+ico('check')+'<br>No requests awaiting your action.</div></div>';
+  const del=delegationActive();
+  if(del) $('inboxList').insertAdjacentHTML('afterbegin',
+    '<div class="notice warn">'+ico('shuffle')+'<div><b>Delegation active:</b> approvals for new requests are routed to <b>'+esc(del.to)+'</b> from '+fmt(del.from)+' to '+fmt(del.until)+'. Reason: '+esc(del.reason)+'</div></div>');
+}
+function reviewRequest(id){
+  const r=state.requests.find(x=>x.id===id); if(!r) return;
+  openModal(modalHead('Review · '+r.id)+'<div class="modal-body">'+
+    '<div style="margin-bottom:12px">'+typePill(r.type)+' '+statusTag(r.status)+'</div>'+
+    '<div class="detail-grid"><div><span>Employee</span><b>'+esc(r.owner)+'</b></div><div><span>Days requested</span><b>'+r.days+'</b></div>'+
+    '<div><span>Period</span><b>'+fmt(r.start)+' – '+fmt(r.end)+'</b></div><div><span>Current step</span><b>'+esc(r.steps[r.step-1].name)+'</b></div></div>'+
+    '<div class="notice">'+ico('info')+'<div><b>Reason:</b> '+esc(r.reason)+'</div></div>'+
+    '<div class="lbl" style="margin-top:14px">Workflow</div><div class="seq">'+r.steps.map((s,i)=>
+      '<div class="step" style="border-color:'+(i===r.step-1?'var(--primary)':'var(--line)')+'"><div class="sn">STEP '+(i+1)+'</div><b>'+esc(s.name)+'</b><span class="sr">'+esc(s.status)+'</span></div>'+(i<r.steps.length-1?'<span class="arrow">→</span>':'')).join('')+'</div>'+
+    '<div class="lbl" style="margin-top:12px">Decision remark <span class="muted tiny">(required when rejecting)</span></div>'+
+    '<textarea id="reviewRemark" placeholder="Add a note for the applicant…"></textarea><div id="reviewErr"></div></div>'+
+    '<div class="modal-foot"><button class="btn ghost" data-action="close-modal">Close</button>'+
+    '<button class="btn ghost" data-action="decide" data-id="'+id+'" data-decision="clarify">'+ico('info')+'Ask for clarification</button>'+
+    '<button class="btn reject" data-action="decide" data-id="'+id+'" data-decision="reject">'+ico('x')+'Reject</button>'+
+    '<button class="btn approve" data-action="decide" data-id="'+id+'" data-decision="approve">'+ico('check')+'Approve</button></div>',true);
+}
+function decide(id, decision){
+  const r=state.requests.find(x=>x.id===id); if(!r) return;
+  const remark=$('reviewRemark').value.trim();
+  const actor=state.role==='hr'?'HR Admin':'Direct Manager';
+  const when='18 Nov 10:45';
+  if((decision==='reject'||decision==='clarify')&&!remark){
+    $('reviewErr').innerHTML='<div class="notice err" style="margin-top:8px">A remark is required for this decision.</div>'; return;
+  }
+  const step=r.steps[r.step-1];
+  if(decision==='clarify'){
+    r.timeline.push({label:step.name+' asked for clarification',by:actor,status:'pend',time:when,note:remark});
+    audit('CLARIFY','LEAVE',id,'Clarification requested at step '+r.step+' · '+remark);
+    closeModal(); renderAll(); toast('Clarification sent to '+r.owner,'warn'); return;
+  }
+  if(decision==='reject'){
+    step.status='rejected'; r.status='REJECTED';
+    r.timeline.push({label:step.name+' rejected',by:actor,status:'bad',time:when,note:remark});
+    audit('REJECT','LEAVE',id,'Rejected at step '+r.step+' · '+remark);
+    closeModal(); renderAll(); toast(r.id+' rejected','bad'); return;
+  }
+  step.status='approved';
+  r.timeline.push({label:step.name+' approved',by:actor,status:'ok',time:when,note:remark||'Approved'});
+  if(r.step<r.steps.length){
+    r.step++; r.steps[r.step-1].status='pending';
+    audit('APPROVE_STEP','LEAVE',id,'Step '+(r.step-1)+' approved · advanced to '+r.steps[r.step-1].name);
+    closeModal(); renderAll(); toast(r.id+' advanced to '+r.steps[r.step-1].name);
+  } else {
+    r.status='APPROVED';
+    const bal=state.balances[r.owner][r.type]||0;
+    if(r.type!=='UL'){
+      state.balances[r.owner][r.type]=bal-r.days;
+      state.ledger.unshift({date:iso(TODAY),emp:r.owner,type:r.type,txn:'DEBIT',qty:-r.days,bal:bal-r.days,ref:r.id,reason:'Approved leave '+fmt(r.start)+' – '+fmt(r.end)});
+    } else {
+      state.ledger.unshift({date:iso(TODAY),emp:r.owner,type:r.type,txn:'DEBIT',qty:0,bal:0,ref:r.id,reason:'Unpaid leave approved — no pay deduction in leave module'});
+    }
+    audit('APPROVE_FINAL','LEAVE',id,'Final approval · '+(r.type==='UL'?'UL flag sent to payroll':r.days+' days debited from ledger'));
+    closeModal(); renderAll(); toast(r.id+' approved · ledger debited '+r.days+' day(s)','ok');
+  }
+}
+function bulkApprove(){
+  const ids=[...document.querySelectorAll('.inbox-check:checked')].map(x=>x.dataset.id);
+  if(!ids.length){ toast('Select at least one request.','warn'); return; }
+  ids.forEach(id=>{
+    const r=state.requests.find(x=>x.id===id); if(!r||r.status!=='PENDING') return;
+    const step=r.steps[r.step-1]; step.status='approved';
+    r.timeline.push({label:step.name+' approved',by:state.role==='hr'?'HR Admin':'Direct Manager',status:'ok',time:'18 Nov 10:50',note:'Bulk approved'});
+    audit('BULK_APPROVE','LEAVE',r.id,'Bulk approval at step '+r.step);
+    if(r.step<r.steps.length){ r.step++; r.steps[r.step-1].status='pending'; }
+    else {
+      r.status='APPROVED'; const bal=state.balances[r.owner][r.type]||0;
+      if(r.type!=='UL'){ state.balances[r.owner][r.type]=bal-r.days; state.ledger.unshift({date:iso(TODAY),emp:r.owner,type:r.type,txn:'DEBIT',qty:-r.days,bal:bal-r.days,ref:r.id,reason:'Bulk approved leave'}); }
+    }
+  });
+  renderAll(); toast(ids.length+' request(s) approved','ok');
+}
+function delegateModal(){
+  openModal(modalHead('Delegate approval authority')+'<div class="modal-body">'+
+    '<div class="notice">'+ico('shuffle')+'<div>While delegated, new requests are routed to your substitute. The delegation is logged in the audit trail.</div></div>'+
+    '<div class="field mt16"><label>Delegate to *</label><select id="delTo"><option>Aina Najwa</option><option>Arun Kumar</option><option>Siti Aminah</option></select></div>'+
+    '<div class="field-row"><div class="field"><label>From</label><input type="date" id="delFrom" value="2026-11-18"></div><div class="field"><label>Until</label><input type="date" id="delToDate" value="2026-11-25"></div></div>'+
+    '<div class="field"><label>Reason</label><textarea id="delReason" style="min-height:60px">Annual leave abroad</textarea></div></div>'+
+    '<div class="modal-foot"><button class="btn ghost" data-action="close-modal">Cancel</button><button class="btn primary" data-action="delegate-save">'+ico('check')+'Save delegation</button></div>');
+}
+
+/* ============================================================
+   Team Calendar (UC-03)
+   ============================================================ */
+function renderCalendar(){
+  const m=state.calMonth, y=m.getFullYear(), mo=m.getMonth();
+  $('calTitle').textContent=m.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const first=new Date(y,mo,1), offset=(first.getDay()+6)%7;
+  const start=new Date(y,mo,1-offset);
+  let html='';
+  for(let i=0;i<42;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const key=iso(d), out=d.getMonth()!==mo, ph=isPH(key);
+    let ev='';
+    state.requests.filter(r=>r.status==='APPROVED' && r.start<=key && r.end>=key &&
+      (state.calDept==='all'||r.dept===state.calDept)).slice(0,3).forEach(r=>{
+      ev+='<div class="cal-ev ap" data-action="detail" data-id="'+r.id+'" title="'+esc(r.owner+' · '+r.type+' · '+fmt(r.start)+' – '+fmt(r.end))+'">'+r.type+' '+esc(r.owner.split(' ')[0])+'</div>';
+    });
+    html+='<div class="cal-cell '+(out?'out':'')+' '+((d.getDay()===0||d.getDay()===6)?'we':'')+'">'+
+      '<div class="dnum"><span>'+d.getDate()+'</span>'+(key===iso(TODAY)?'<span class="pill" style="padding:0 5px;font-size:9px">Today</span>':'')+'</div>'+
+      (ph?'<div class="ph" title="'+esc(phName(key))+'">'+esc(phName(key))+'</div>':'')+ev+'</div>';
+  }
+  $('calGrid').innerHTML=html;
+}
+/* ============================================================
+   HR — Leave types (UC-07)
+   ============================================================ */
+function renderLeaveTypes(){
+  $('ltCount').textContent=state.leaveTypes.length+' types configured';
+  $('leaveTypesBody').innerHTML=state.leaveTypes.map(t=>
+    '<tr><td><b>'+t.code+'</b></td><td>'+esc(t.name)+'</td><td>'+t.ent+' days</td><td class="muted">'+esc(t.accrual)+'</td>'+
+    '<td class="muted">'+esc(t.carry)+'</td><td>'+t.notice+'d</td>'+
+    '<td>'+(t.statutory?'<span class="tag statutory">Act 265</span>':'<span class="tag policy">Policy</span>')+' '+(t.paid?'<span class="tag yes">Paid</span>':'<span class="tag no">Unpaid</span>')+'</td>'+
+    '<td><label class="switch"><input type="checkbox" '+(t.active?'checked':'')+' data-action="lt-toggle" data-code="'+t.code+'"><i></i></label></td>'+
+    '<td><button class="btn ghost sm" data-action="lt-edit" data-code="'+t.code+'">Edit</button></td></tr>'
+  ).join('');
+}
+function editLeaveType(code){
+  const t=state.leaveTypes.find(x=>x.code===code); if(!t) return;
+  openModal(modalHead('Edit leave type · '+t.code)+'<div class="modal-body">'+
+    '<div class="field-row"><div class="field"><label>Name</label><input id="ltName" value="'+esc(t.name)+'"></div><div class="field"><label>Code</label><input value="'+t.code+'" disabled></div></div>'+
+    '<div class="field-row"><div class="field"><label>Annual entitlement (days)</label><input type="number" step="0.5" id="ltEnt" value="'+t.ent+'"></div>'+
+    '<div class="field"><label>Minimum notice (working days)</label><input type="number" id="ltNotice" value="'+t.notice+'"></div></div>'+
+    '<div class="field-row"><div class="field"><label>Accrual method</label><select id="ltAccrual">'+['Monthly 1/12','Service band','Per birth','PH worked 1:1','Discretionary','Company benefit'].map(o=>'<option '+(o===t.accrual?'selected':'')+'>'+o+'</option>').join('')+'</select></div>'+
+    '<div class="field"><label>Carry forward</label><input id="ltCarry" value="'+esc(t.carry)+'"></div></div>'+
+    '<div class="field-row"><div class="field"><label>Allow negative balance</label><select id="ltNeg"><option value="no" '+(!t.negative?'selected':'')+'>No</option><option value="yes" '+(t.negative?'selected':'')+'>Yes</option></select></div>'+
+    '<div class="field"><label>Requires document</label><select id="ltDoc"><option value="no" '+(!t.doc?'selected':'')+'>No</option><option value="yes" '+(t.doc?'selected':'')+'>Yes</option></select></div></div>'+
+    '<div class="notice">'+ico('info')+'<div>Statutory minimum for <b>'+t.code+'</b> cannot be reduced. The engine applies max(company, statutory).</div></div></div>'+
+    '<div class="modal-foot"><button class="btn ghost" data-action="close-modal">Cancel</button><button class="btn primary" data-action="lt-save" data-code="'+code+'">Save changes</button></div>');
+}
+function saveLeaveType(code){
+  const t=state.leaveTypes.find(x=>x.code===code);
+  t.name=$('ltName').value.trim()||t.name; t.ent=Number($('ltEnt').value)||0;
+  t.notice=Number($('ltNotice').value)||0; t.accrual=$('ltAccrual').value; t.carry=$('ltCarry').value.trim();
+  t.negative=$('ltNeg').value==='yes'; t.doc=$('ltDoc').value==='yes';
+  TYPE_INFO[code].name=t.name; TYPE_INFO[code].notice=t.notice; TYPE_INFO[code].negative=t.negative; TYPE_INFO[code].doc=t.doc; TYPE_INFO[code].accrual=t.accrual; TYPE_INFO[code].carry=t.carry;
+  audit('POLICY_UPDATE','POLICY','leave_types/'+code,'Entitlement '+t.ent+'d · notice '+t.notice+'d · carry '+(t.carry||'none'));
+  closeModal(); renderAll(); toast(code+' policy updated','ok');
+}
+function addLeaveType(){
+  openModal(modalHead('New leave type')+'<div class="modal-body">'+
+    '<div class="field-row"><div class="field"><label>Code</label><input id="ntCode" placeholder="e.g. COMP" maxlength="6"></div><div class="field"><label>Name</label><input id="ntName" placeholder="Compassionate Leave"></div></div>'+
+    '<div class="field-row"><div class="field"><label>Entitlement (days)</label><input type="number" id="ntEnt" value="0"></div><div class="field"><label>Notice (days)</label><input type="number" id="ntNotice" value="0"></div></div>'+
+    '<div class="field"><label>Accrual method</label><select id="ntAccrual"><option>Manual</option><option>Monthly 1/12</option><option>Company benefit</option></select></div></div>'+
+    '<div class="modal-foot"><button class="btn ghost" data-action="close-modal">Cancel</button><button class="btn primary" data-action="nt-save">Create</button></div>');
+}
+function createLeaveType(){
+  const code=$('ntCode').value.trim().toUpperCase(), name=$('ntName').value.trim();
+  if(!code||!name){ toast('Code and name are required.','bad'); return; }
+  if(state.leaveTypes.some(t=>t.code===code)){ toast('Code already exists.','bad'); return; }
+  state.leaveTypes.push({code:code,name:name,ent:Number($('ntEnt').value)||0,accrual:$('ntAccrual').value,carry:'N/A',notice:Number($('ntNotice').value)||0,statutory:false,paid:true,active:true,negative:false,doc:false});
+  TYPE_INFO[code]={name:name,ms:name,color:'#60757E',daysText:'',substitute:false,statutory:false,notice:Number($('ntNotice').value)||0,negative:false,doc:false,carry:'N/A',accrual:$('ntAccrual').value,paid:true};
+  state.balances[ME][code]=Number($('ntEnt').value)||0;
+  audit('POLICY_CREATE','POLICY','leave_types/'+code,'New leave type created · '+name);
+  closeModal(); renderAll(); toast(code+' created','ok');
+}
+
+/* ============================================================
+   HR — Workflow builder (UC-08)
+   ============================================================ */
+function renderWorkflow(){
+  const w=state.workflow;
+  $('modeSeq').className='btn '+(w.mode==='sequential'?'primary':'ghost');
+  $('modePar').className='btn '+(w.mode==='parallel'?'primary':'ghost');
+  $('modeHint').textContent=w.mode==='sequential'?'Each approver acts in order; the next step unlocks after approval.':'All approvers are notified at once; the first decision finalises the step.';
+  $('wfSteps').innerHTML=w.steps.map((s,i)=>
+    (i>0?'<span class="arrow">'+(w.mode==='sequential'?'→':'+')+'</span>':'')+
+    '<div class="step"><button class="x" data-action="wf-remove" data-i="'+i+'">'+ico('x','sm')+'</button>'+
+    '<div class="sn">STEP '+(i+1)+'</div><b>'+esc(s.name)+'</b><span class="sr">'+s.role+(s.delegate?' · delegation allowed':'')+'</span></div>'
+  ).join('');
+  $('wfScopes').innerHTML=w.scopes.map((s,i)=>
+    '<div class="scope-row"><span class="pill">'+esc(s.type)+'</span><span class="grow" style="flex:1;font-size:12.5px">'+esc(s.value)+'</span>'+
+    '<button class="btn ghost sm" data-action="scope-remove" data-i="'+i+'">Remove</button></div>').join('');
+}
+function addStep(){
+  state.workflow.steps.push({name:'HR Manager',role:'hr',delegate:true});
+  renderWorkflow(); toast('Step added');
+}
+function addScope(){
+  openModal(modalHead('Add scope rule')+'<div class="modal-body">'+
+    '<div class="field"><label>Scope type</label><select id="scType"><option>Employee</option><option>Group / Department</option><option>Leave type</option><option>Company</option></select></div>'+
+    '<div class="field"><label>Value</label><input id="scValue" placeholder="e.g. Engineering or ML, PL"></div></div>'+
+    '<div class="modal-foot"><button class="btn ghost" data-action="close-modal">Cancel</button><button class="btn primary" data-action="scope-save">Add rule</button></div>');
+}
+
+/* ============================================================
+   HR — Holidays (UC-09)
+   ============================================================ */
+function renderHolidays(){
+  const y=$('holYear').value, st=$('holState').value;
+  const list=state.holidays.filter(h=>h.year===Number(y)&&(st==='all'||h.state==='All'||h.state.includes(st)))
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  $('holCount').textContent=list.length+' holidays';
+  $('holidaysBody').innerHTML=list.length?list.map(h=>
+    '<tr><td><b>'+fmt(h.date,{weekday:'short',day:'2-digit',month:'short',year:'numeric'})+'</b></td><td>'+esc(h.name)+'</td>'+
+    '<td><span class="tag '+(h.source==='Federal'?'statutory':h.source==='State'?'policy':'completed')+'">'+h.source+'</span></td><td>'+esc(h.state)+'</td>'+
+    '<td>'+(h.repl==='—'?'<span class="muted">—</span>':'<span class="tag pending">'+fmt(h.repl)+'</span>')+'</td>'+
+    '<td><button class="btn ghost sm" data-action="hol-delete" data-id="'+h.id+'">Remove</button></td></tr>'
+  ).join(''):'<tr><td colspan="6"><div class="empty">No holidays for this filter.</div></td></tr>';
+}
+function addHoliday(){
+  openModal(modalHead('Add public holiday')+'<div class="modal-body">'+
+    '<div class="field"><label>Holiday name</label><input id="nhName" placeholder="e.g. Thaipusam"></div>'+
+    '<div class="field-row"><div class="field"><label>Date</label><input type="date" id="nhDate" value="2026-12-01"></div>'+
+    '<div class="field"><label>Source</label><select id="nhSource"><option>Federal</option><option>State</option><option>Company</option></select></div></div>'+
+    '<div class="field-row"><div class="field"><label>State</label><select id="nhState"><option>All</option><option>SEL</option><option>WLY</option><option>JHR</option></select></div>'+
+    '<div class="field"><label>Replacement date</label><input id="nhRepl" placeholder="YYYY-MM-DD or —" value="—"></div></div>'+
+    '<div class="notice warn">'+ico('alert')+'<div>Public holidays affect day-counting: a PH inside an approved AL range is not deducted.</div></div></div>'+
+    '<div class="modal-foot"><button class="btn ghost" data-action="close-modal">Cancel</button><button class="btn primary" data-action="nh-save">Add holiday</button></div>');
+}
+
+/* ============================================================
+   HR — Ledger (UC-10 / UC-11)
+   ============================================================ */
+function renderLedger(){
+  $('ledgerEmp').innerHTML=Object.keys(state.balances).map(n=>'<option '+(n===state.ledgerEmp?'selected':'')+'>'+n+'</option>').join('');
+  const b=state.balances[state.ledgerEmp];
+  $('ledgerBalances').innerHTML=allCodes().map(c=>
+    '<div class="card balance-card"><div class="code">'+c+'</div><div class="name">'+TYPE_INFO[c].name+'</div><div class="num">'+b[c]+'<small> days</small></div></div>').join('');
+  const tx=state.ledger.filter(x=>x.emp===state.ledgerEmp).sort((a,b)=>b.date.localeCompare(a.date));
+  $('ledgerCount').textContent=tx.length+' transactions · append-only';
+  $('ledgerBody').innerHTML=tx.length?tx.map(t=>{
+    const sign=t.qty>0?'+':'';
+    const cls=t.qty>0?'tag approved':'tag rejected';
+    return '<tr><td class="muted">'+fmt(t.date,{day:'2-digit',month:'short',year:'numeric'})+'</td><td><span class="tag '+(t.txn==='ACCRUAL'?'completed':t.txn==='DEBIT'?'rejected':t.txn==='REVERSAL'?'pending':'approved')+'">'+t.txn+'</span></td>'+
+      '<td>'+t.type+'</td><td><span class="'+cls+'" style="padding:2px 7px;border-radius:6px">'+sign+t.qty+'</span></td><td><b>'+t.bal+'</b></td><td class="muted">'+esc(t.ref)+'</td><td class="muted">'+esc(t.reason)+'</td></tr>';
+  }).join(''):'<tr><td colspan="7"><div class="empty">No transactions for this employee.</div></td></tr>';
+}
+function adjustModal(){
+  openModal(modalHead('Adjust leave balance')+'<div class="modal-body">'+
+    '<div class="notice">'+ico('ledger')+'<div>Adjustments post an <b>ADJUSTMENT</b> entry to the append-only ledger. A reason and HR approver are mandatory (audit trail).</div></div>'+
+    '<div class="field-row mt16"><div class="field"><label>Employee</label><input value="'+esc(state.ledgerEmp)+'" disabled></div>'+
+    '<div class="field"><label>Leave type</label><select id="adType">'+allCodes().map(c=>'<option>'+c+'</option>').join('')+'</select></div></div>'+
+    '<div class="field-row"><div class="field"><label>Quantity (+ credit / − debit)</label><input type="number" step="0.5" id="adQty" value="1"></div>'+
+    '<div class="field"><label>Effective date</label><input type="date" id="adDate" value="2026-11-17"></div></div>'+
+    '<div class="field"><label>Reason *</label><textarea id="adReason" style="min-height:60px" placeholder="e.g. Policy correction — carry forward error"></textarea></div>'+
+    '<div class="field"><label>Approved by</label><select id="adBy"><option>HR Manager</option><option>HR Admin</option></select></div></div>'+
+    '<div class="modal-foot"><button class="btn ghost" data-action="close-modal">Cancel</button><button class="btn primary" data-action="ad-save">Post adjustment</button></div>');
+}
+function postAdjustment(){
+  const qty=Number($('adQty').value), reason=$('adReason').value.trim();
+  if(!qty){ toast('Quantity must not be zero.','bad'); return; }
+  if(!reason){ toast('Reason is mandatory.','bad'); return; }
+  const type=$('adType').value, emp=state.ledgerEmp;
+  state.balances[emp][type]+=qty;
+  const ref='ADJ-'+Date.now().toString().slice(-6);
+  state.ledger.unshift({date:$('adDate').value,emp:emp,type:type,txn:'ADJUSTMENT',qty:qty,bal:state.balances[emp][type],ref:ref,reason:reason+' (approved by '+$('adBy').value+')'});
+  audit('ADJUST','POLICY',ref,emp+' · '+type+' '+(qty>0?'+':'')+qty+' days · '+reason);
+  closeModal(); renderAll(); toast('Adjustment posted to ledger','ok');
+}
+
+/* ============================================================
+   Reports (UC-12 / UC-13)
+   ============================================================ */
+function renderReports(){
+  const all=state.requests.filter(r=>parseISO(r.start).getFullYear()===state.repYear &&
+    (state.repDept==='all'||(EMP_DEPT[r.owner]||r.dept)===state.repDept));
+  const employees=Object.keys(state.balances).filter(n=>state.repDept==='all'||EMP_DEPT[n]===state.repDept);
+  const approved=all.filter(r=>r.status==='APPROVED');
+  const pending=all.filter(r=>r.status==='PENDING');
+  const liability=employees.reduce((a,n)=>a+state.balances[n].AL,0);
+  const last=state.payrollExports[0];
+  $('repPayroll').innerHTML='<div class="notice '+(last?'':'warn')+'" style="margin-bottom:16px">'+ico('ledger')+'<div>'+
+    (last?'<b>Last payroll export:</b> '+esc(last.period)+' · '+last.records+' record(s) · '+last.days+' days · '+esc(last.time)+' by '+esc(last.by)
+      :'<b>No payroll export yet.</b> Approved leave is exported at the <b>25th cut-off</b>; unpaid leave is passed as a flag, not a salary deduction.')+'</div></div>';
+  const kpis=[['', 'list', all.length,'Total requests'],['g','check',approved.length,'Approved'],['y','clock',pending.length,'Pending'],['c','ledger',liability,'AL liability (days)']];
+  $('repKpis').innerHTML=kpis.map(k=>'<div class="card kpi"><div class="stat"><div class="ico '+k[0]+'">'+ico(k[1])+'</div><div><b>'+k[2]+'</b><span>'+k[3]+'</span></div></div></div>').join('');
+  const byType=Object.keys(TYPE_INFO).map(c=>{
+    const rs=all.filter(r=>r.type===c); return {c:c,days:rs.reduce((a,r)=>a+r.days,0),n:rs.length,ap:rs.filter(r=>r.status==='APPROVED').length,pe:rs.filter(r=>r.status==='PENDING').length};
+  }).filter(x=>x.n>0);
+  const max=Math.max(1,...byType.map(x=>x.days));
+  $('repChart').innerHTML=byType.map((x,i)=>'<div class="col"><span class="vl">'+x.days+'</span><div class="bar-v '+(i%2?'alt':'')+'" style="height:'+Math.max(3,x.days/max*130)+'px"></div><span class="lb">'+x.c+'</span></div>').join('')||'<div class="empty">No data for this filter</div>';
+  $('repLiability').innerHTML=allCodes().map(c=>{
+    const vals=employees.map(n=>state.balances[n][c]||0), sum=vals.reduce((a,b)=>a+b,0), avg=vals.length?Math.round(sum/vals.length*10)/10:0;
+    return '<div class="sum-line" style="padding:9px 0;border-bottom:1px solid var(--line)"><span><b>'+c+'</b> · '+TYPE_INFO[c].name+'</span><b>'+sum+' days <span class="muted tiny">(avg '+avg+')</span></b></div>';
+  }).join('')+'<div class="notice mt16">'+ico('down')+'<div>Liability excludes carried-forward days expiring 31 Mar. Recalculate after the annual carry-forward job.</div></div>';
+  $('repBody').innerHTML=byType.map(x=>'<tr><td>'+typePill(x.c)+'</td><td>'+x.n+'</td><td><b>'+x.days+'</b></td><td>'+x.ap+'</td><td>'+x.pe+'</td></tr>').join('')||'<tr><td colspan="5"><div class="empty">No data for this filter.</div></td></tr>';
+}
+function payrollExportModal(){
+  const approved=state.requests.filter(r=>r.status==='APPROVED');
+  openModal(modalHead('Payroll cut-off export · November 2026')+'<div class="modal-body">'+
+    '<div class="notice">'+ico('ledger')+'<div>Snapshot of approved leave at the <b>25th cut-off</b>. Unpaid leave is exported as a flag; no salary deduction is calculated here.</div></div>'+
+    '<div class="detail-grid mt16"><div><span>Period</span><b>2026-11</b></div><div><span>Cut-off</span><b>25 Nov 2026, 17:00</b></div>'+
+    '<div><span>Approved records</span><b>'+approved.length+'</b></div><div><span>Approved days</span><b>'+approved.reduce((a,r)=>a+r.days,0)+'</b></div>'+
+    '<div><span>Unpaid leave flags</span><b>'+approved.filter(r=>r.type==='UL').length+'</b></div><div><span>Replacement days</span><b>'+approved.filter(r=>r.type==='RL').reduce((a,r)=>a+r.days,0)+'</b></div></div>'+
+    '<div class="field"><label>Export note</label><input id="peNote" value="Monthly leave snapshot"></div></div>'+
+    '<div class="modal-foot"><button class="btn ghost" data-action="close-modal">Cancel</button><button class="btn primary" data-action="pe-save">'+ico('down')+'Create export</button></div>');
+}
+function confirmPayrollExport(){
+  const approved=state.requests.filter(r=>r.status==='APPROVED');
+  const rec={period:'2026-11',records:approved.length,days:approved.reduce((a,r)=>a+r.days,0),time:'18 Nov 10:55',by:state.role==='hr'?'HR Admin':'Payroll',note:$('peNote').value};
+  state.payrollExports.unshift(rec);
+  audit('PAYROLL_EXPORT','EXPORT','payroll_leave_exports/2026-11',rec.records+' records · '+rec.days+' days · '+(rec.note||'no note'));
+  closeModal(); renderAll(); toast('Payroll export created for 2026-11','ok');
+}
+function exportCSV(){
+  const rows=[['Reference','Employee','Leave Type','Start','End','Days','Status','Department']];
+  state.requests.forEach(r=>rows.push([r.id,r.owner,r.type,r.start,r.end,r.days,r.status,r.dept||'']));
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='leave_requests_2026.csv'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('CSV exported','ok');
+}
+
+/* ============================================================
+   Audit Trail (PDPA / compliance)
+   ============================================================ */
+function renderAudit(){
+  if(!$('auditBody')) return;
+  const rows=state.audit.filter(a=>state.auditFilter==='all'||a.cat===state.auditFilter);
+  $('auditCount').textContent=rows.length+' of '+state.audit.length+' events shown';
+  const tone=a=>/^APPROVE|^BULK_APPROVE/.test(a)?'approved':
+    /REJECT|CANCEL/.test(a)?'rejected':
+    /CLARIFY|DELEGATE|ADJUST|POLICY_/.test(a)?'pending':'completed';
+  $('auditBody').innerHTML=rows.map(a=>
+    '<tr><td style="white-space:nowrap" class="muted">'+esc(a.time)+'</td>'+
+    '<td><b>'+esc(a.actor)+'</b></td>'+
+    '<td><span class="tag '+tone(a.action)+'">'+esc(a.action)+'</span></td>'+
+    '<td>'+esc(a.cat)+'</td><td class="muted">'+esc(a.entity)+'</td>'+
+    '<td>'+esc(a.detail)+'</td><td class="muted tiny">'+esc(a.ip)+'</td></tr>'
+  ).join('')||'<tr><td colspan="7"><div class="empty">No audit events for this filter.</div></td></tr>';
+}
+
+/* ============================================================
+   Notification popover
+   ============================================================ */
+function toggleNotif(){
+  const old=document.querySelector('.notif-pop'); if(old){ old.remove(); return; }
+  const pop=document.createElement('div'); pop.className='notif-pop';
+  pop.innerHTML='<div class="np-head"><span>Notifications</span><span class="link" data-action="notif-read">Mark all read</span></div>'+
+    state.notifications.map(n=>'<div class="np-item"><i></i><div><b>'+esc(n.title)+'</b><span>'+esc(n.body)+'</span><span>'+esc(n.time)+'</span></div></div>').join('');
+  document.body.appendChild(pop);
+}
+
+/* ============================================================
+   Event delegation
+   ============================================================ */
+document.addEventListener('click', e=>{
+  const el=e.target.closest('[data-action]'); if(!el) return;
+  const a=el.dataset.action, id=el.dataset.id;
+  if(a!=='notif'){ const p=document.querySelector('.notif-pop'); if(p) p.remove(); }
+  switch(a){
+    case 'goto': navigate(el.dataset.screen); break;
+    case 'toggle-menu': $('sidebar').classList.toggle('open'); break;
+    case 'notif': toggleNotif(); break;
+    case 'notif-read': document.querySelectorAll('.np-item i').forEach(i=>i.style.background='#cfdade'); toast('All marked as read'); break;
+    case 'close-modal': closeModal(); break;
+    case 'pick-type': state.draft.type=el.dataset.type; renderApply(); break;
+    case 'sess':
+      state.draft[el.dataset.which+'Session']=el.dataset.value;
+      document.querySelectorAll('#sess'+(el.dataset.which==='start'?'Start':'End')+' button').forEach(b=>b.classList.toggle('on',b===el));
+      updateApply(); break;
+    case 'pick-file': $('applyFile').click(); break;
+    case 'save-draft': submitLeave(true); break;
+    case 'submit-leave': submitLeave(false); break;
+    case 'detail': requestDetail(id); break;
+    case 'req-tab':
+      state.reqTab=el.dataset.tab; state.reqFilter='all'; state.reqSearch='';
+      if($('reqFilter')) $('reqFilter').value='all';
+      if($('reqSearch')) $('reqSearch').value='';
+      renderRequests(); break;
+    case 'edit': editRequest(id); break;
+    case 'waive-notice': state.draft.waived=true; renderApply(); audit('NOTICE_WAIVER','LEAVE',state.draft.editId||'DRAFT','Notice period waived by HR for '+state.draft.type); toast('Notice period waived — policy check updated','ok'); break;
+    case 'unwaive-notice': state.draft.waived=false; renderApply(); audit('NOTICE_UNWAIVE','LEAVE',state.draft.editId||'DRAFT','Notice waiver removed'); toast('Waiver removed'); break;
+    case 'payroll-export': payrollExportModal(); break;
+    case 'pe-save': confirmPayrollExport(); break;
+    case 'cancel': cancelRequest(id); break;
+    case 'cancel-confirm': confirmCancel(id); break;
+    case 'review': reviewRequest(id); break;
+    case 'decide': decide(id,el.dataset.decision); break;
+    case 'bulk-approve': bulkApprove(); break;
+    case 'delegate': delegateModal(); break;
+    case 'delegate-save': {
+      const who=$('delTo')?$('delTo').value:'substitute';
+      state.delegation={to:who,from:$('delFrom').value,until:$('delToDate').value,reason:$('delReason').value};
+      audit('DELEGATE','ACCESS',who,'Delegation '+state.delegation.from+' → '+state.delegation.until+' · '+state.delegation.reason);
+      closeModal(); renderAll(); toast('Delegation saved to '+who+' · new requests routed there','ok'); break;
+    }
+    case 'cal-prev': state.calMonth=new Date(state.calMonth.getFullYear(),state.calMonth.getMonth()-1,1); renderCalendar(); break;
+    case 'cal-next': state.calMonth=new Date(state.calMonth.getFullYear(),state.calMonth.getMonth()+1,1); renderCalendar(); break;
+    case 'cal-today': state.calMonth=new Date(TODAY.getFullYear(),TODAY.getMonth(),1); renderCalendar(); break;
+    case 'lt-edit': editLeaveType(el.dataset.code); break;
+    case 'lt-save': saveLeaveType(el.dataset.code); break;
+    case 'add-leavetype': addLeaveType(); break;
+    case 'nt-save': createLeaveType(); break;
+    case 'wf-mode': state.workflow.mode=el.dataset.mode; renderWorkflow(); break;
+    case 'wf-add': addStep(); break;
+    case 'wf-remove': state.workflow.steps.splice(Number(el.dataset.i),1); renderWorkflow(); break;
+    case 'scope-add': addScope(); break;
+    case 'scope-save':
+      state.workflow.scopes.push({type:$('scType').value,value:$('scValue').value||'All'});
+      closeModal(); renderWorkflow(); toast('Scope rule added'); break;
+    case 'scope-remove': state.workflow.scopes.splice(Number(el.dataset.i),1); renderWorkflow(); break;
+    case 'save-workflow': toast('Workflow saved · '+state.workflow.mode+' mode','ok'); break;
+    case 'add-holiday': addHoliday(); break;
+    case 'nh-save': {
+      const nm=$('nhName').value.trim(); if(!nm){ toast('Holiday name is required.','bad'); return; }
+      state.holidays.push({id:'H'+Date.now(),name:nm,date:$('nhDate').value,source:$('nhSource').value,state:$('nhState').value,year:Number($('nhDate').value.slice(0,4)),repl:$('nhRepl').value||'—'});
+      closeModal(); renderAll(); toast('Holiday added','ok'); break;
+    }
+    case 'hol-delete':
+      state.holidays=state.holidays.filter(h=>h.id!==id); renderAll(); toast('Holiday removed'); break;
+    case 'adjust': adjustModal(); break;
+    case 'ad-save': postAdjustment(); break;
+    case 'export': exportCSV(); break;
+  }
+});
+document.addEventListener('change', e=>{
+  const el=e.target, a=el.dataset?el.dataset.action:'';
+  if(el.id==='roleSelect'){ state.role=el.value; applyRole(); return; }
+  if(el.id==='applyStart'){ state.draft.start=el.value; updateApply(); return; }
+  if(el.id==='applyEnd'){ state.draft.end=el.value; updateApply(); return; }
+  if(el.id==='applyHandover'){ state.draft.handover=el.value; return; }
+  if(el.id==='applyFile'){ state.draft.file=el.files[0]?el.files[0].name:null; renderApply(); return; }
+  if(el.id==='reqFilter'){ state.reqFilter=el.value; renderRequests(); return; }
+  if(el.id==='inboxFilter'){ state.inboxFilter=el.value; renderInbox(); return; }
+  if(el.id==='calDept'){ state.calDept=el.value; renderCalendar(); return; }
+  if(el.id==='ledgerEmp'){ state.ledgerEmp=el.value; renderLedger(); return; }
+  if(a==='lt-toggle'){ const t=state.leaveTypes.find(x=>x.code===el.dataset.code); if(t) t.active=el.checked; toast(t.code+(t.active?' activated':' deactivated')); return; }
+  if(a==='hol-filter'||el.id==='holYear'||el.id==='holState'){ renderHolidays(); return; }
+  if(el.id==='repYear'){ state.repYear=Number(el.value); renderReports(); return; }
+  if(el.id==='repDept'){ state.repDept=el.value; renderReports(); return; }
+  if(el.id==='auditFilter'){ state.auditFilter=el.value; renderAudit(); return; }
+});
+document.addEventListener('input', e=>{
+  if(e.target.id==='applyReason'){ state.draft.reason=e.target.value; $('charCount').textContent=e.target.value.length; }
+  if(e.target.id==='reqSearch'){ state.reqSearch=e.target.value; renderRequests(); }
+});
+
+/* ============================================================
+   Init
+   ============================================================ */
+$('roleSelect').value=state.role;
+$('ledgerEmp').value=ME;
+applyRole();
+</script>
+</body>
+</html>
